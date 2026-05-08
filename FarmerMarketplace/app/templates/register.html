@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
+<div class="login-wrapper theme-farmer"> <!-- Defaulting to farmer theme for green vibe -->
+    <div class="auth-card" style="max-width: 600px;">
+        <div class="auth-header">
+            <div class="logo-square">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2>Join the Ecosystem</h2>
+            <div class="portal-label">Create Your Account</div>
+        </div>
+
+        <div class="auth-body">
+            <form action="{{ url_for('auth.register') }}" method="POST">
+                <!-- Role Selection -->
+                <div class="input-group">
+                    <label>I am a...</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                        <label class="role-option-custom">
+                            <input type="radio" name="role" value="buyer" checked onchange="updateRegisterTheme(this)">
+                            <div class="role-box-custom">
+                                <i class="fas fa-shopping-basket"></i>
+                                <span>Buyer</span>
+                            </div>
+                        </label>
+                        <label class="role-option-custom">
+                            <input type="radio" name="role" value="farmer" onchange="updateRegisterTheme(this)">
+                            <div class="role-box-custom">
+                                <i class="fas fa-tractor"></i>
+                                <span>Farmer</span>
+                            </div>
+                        </label>
+                        <label class="role-option-custom">
+                            <input type="radio" name="role" value="admin" onchange="updateRegisterTheme(this)">
+                            <div class="role-box-custom">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Admin</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Username</label>
+                    <div class="field-wrapper">
+                        <div class="field-icon"><i class="fas fa-user"></i></div>
+                        <input type="text" name="username" required placeholder="Choose a username">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="field-wrapper">
+                        <div class="field-icon"><i class="fas fa-lock"></i></div>
+                        <input type="password" name="password" required placeholder="Create a password">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Contact Number</label>
+                    <div class="field-wrapper">
+                        <div class="field-icon"><i class="fas fa-phone"></i></div>
+                        <input type="text" name="contact_number" required placeholder="e.g. 9876543210">
+                    </div>
+                </div>
+
+                <!-- Farmer Specific Fields (Dynamic) -->
+                <div id="farmer-fields"
+                    style="display: none; opacity: 0; transform: translateY(10px); transition: all 0.4s ease;">
+                    <div
+                        style="padding: 24px; background: #f8fafc; border-radius: 20px; border: 1.5px dashed #e2e8f0; margin-bottom: 24px;">
+                        <h4
+                            style="margin: 0 0 15px; color: #1e293b; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> Location Details
+                        </h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <input type="text" name="state" placeholder="State" style="background: white;">
+                            <input type="text" name="district" placeholder="District" style="background: white;">
+                        </div>
+                        <input type="text" name="place" placeholder="Village / Town"
+                            style="margin-top: 15px; background: white;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Complete Registration</button>
+            </form>
+
+            <div class="auth-footer">
+                Already registered? <a href="/">Login here</a>
+            </div>
+            <a href="{{ url_for('main.landing') }}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .role-option-custom {
+        cursor: pointer;
+        position: relative;
+    }
+
+    .role-option-custom input {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .role-box-custom {
+        padding: 15px;
+        text-align: center;
+        background: #f1f5f9;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        transition: all 0.3s;
+        color: #64748b;
+    }
+
+    .role-box-custom i {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+    }
+
+    .role-box-custom span {
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .role-option-custom input:checked+.role-box-custom {
+        background: white;
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Theme based checks */
+    .theme-farmer .role-option-custom input:checked+.role-box-custom {
+        border-color: var(--farmer-green);
+        color: var(--farmer-green);
+    }
+
+    .theme-buyer .role-option-custom input:checked+.role-box-custom {
+        border-color: var(--buyer-blue);
+        color: var(--buyer-blue);
+    }
+
+    .theme-admin .role-option-custom input:checked+.role-box-custom {
+        border-color: var(--admin-red);
+        color: var(--admin-red);
+    }
+</style>
+
+<script>
+    function updateRegisterTheme(input) {
+        const wrapper = document.querySelector('.login-wrapper');
+        const role = input.value;
+        const fields = document.getElementById('farmer-fields');
+
+        // Remove old themes
+        wrapper.classList.remove('theme-farmer', 'theme-buyer', 'theme-admin');
+        wrapper.classList.add('theme-' + role);
+
+        // Handle farmer fields
+        if (role === 'farmer') {
+            fields.style.display = 'block';
+            setTimeout(() => {
+                fields.style.opacity = '1';
+                fields.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+            fields.style.opacity = '0';
+            fields.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                fields.style.display = 'none';
+            }, 400);
+        }
+
+        // Set required fields
+        const inputs = fields.querySelectorAll('input');
+        inputs.forEach(i => i.required = (role === 'farmer'));
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        const checked = document.querySelector('input[name="role"]:checked');
+        if (checked) updateRegisterTheme(checked);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_dashboard.css') }}">
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="buyer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-shopping-basket"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('buyer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('buyer.marketplace') }}" class="menu-item active">
+                <i class="fas fa-store"></i> Marketplace
+            </a>
+            <a href="{{ url_for('buyer.offers') }}" class="menu-item">
+                <i class="fas fa-tags"></i> My Offers
+            </a>
+            <a href="{{ url_for('buyer.history') }}" class="menu-item">
+                <i class="fas fa-history"></i> Orders
+            </a>
+            <a href="{{ url_for('buyer.analytics') }}" class="menu-item">
+                <i class="fas fa-chart-pie"></i> Expenses
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-area">
+        <header class="top-bar">
+            <div class="page-title">Fresh Produce Marketplace</div>
+            <div class="user-snippet">
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+            </div>
+        </header>
+
+        <div class="content-pad" style="max-width: 1600px; margin: 0 auto;">
+
+            <div class="marketplace-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <div style="position: relative; height: 180px;">
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;">
+                        <span
+                            style="position: absolute; top: 12px; right: 12px; background: rgba(59, 130, 246, 0.8); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; backdrop-filter: blur(4px); text-transform: uppercase;">
+                            {{ product.condition }}
+                        </span>
+                    </div>
+
+                    <div style="padding: 24px; flex: 1; display: flex; flex-direction: column;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 1.2rem; color: var(--text-main);">{{ product.name }}
+                        </h3>
+                        <p
+                            style="color: var(--text-slate); font-size: 0.85rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ product.location_place }},
+                            {{ product.location_district }}
+                        </p>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--glass-border);">
+                            <div>
+                                <div
+                                    style="font-size: 0.7rem; color: var(--text-slate); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                                    Price</div>
+                                <div style="font-size: 1.4rem; font-weight: 800; color: #10b981;">₹{{ product.price
+                                    }}<span
+                                        style="font-size: 0.85rem; color: var(--text-slate); font-weight: 500;">/kg</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div
+                                    style="font-size: 0.7rem; color: var(--text-slate); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                                    Stock</div>
+                                <div style="font-size: 1rem; font-weight: 700; color: var(--text-main);">{{
+                                    product.quantity }} kg</div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="margin-top: auto; display: flex; flex-direction: column; gap: 45px; padding-bottom: 30px;">
+                            <form action="{{ url_for('buyer.buy_now', product_id=product.id) }}" method="POST"
+                                style="display: flex; gap: 10px;">
+                                <input type="number" name="quantity" placeholder="Qty (Min 30)" required min="30"
+                                    max="{{ product.quantity }}"
+                                    style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; outline: none; font-size: 0.9rem; color: white;">
+                                <button type="submit" class="uiverse-btn">
+                                    Buy
+                                </button>
+                            </form>
+
+                            <button onclick="makeOffer('{{ product.id }}')" class="uiverse-btn" style="width: 100%;">
+                                Make Offer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    function makeOffer(productId) {
+        let amount = prompt("Enter your offer amount (₹ per kg):");
+        if (amount) {
+            fetch('/buyer/make_offer/' + productId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'offer_amount=' + amount
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === 'Pending') window.location.href = "{{ url_for('buyer.offers') }}";
+                });
+        }
+    }
+</script>
+
+{% endblock %}

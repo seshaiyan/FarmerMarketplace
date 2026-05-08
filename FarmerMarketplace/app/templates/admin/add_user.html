@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="registration-wrapper"
+    style="display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px;">
+    <div class="card registration-card"
+        style="width: 100%; max-width: 500px; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: none; background: white;">
+        <h2 style="color: #2c3e50; font-weight: 700; margin-bottom: 25px; text-align: center;">Add New User</h2>
+
+        <form action="{{ url_for('admin.add_user') }}" method="POST">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Username</label>
+                <input type="text" name="username" required
+                    style="width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 10px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
+                <input type="password" name="password" required
+                    style="width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 10px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Role</label>
+                <select name="role" required
+                    style="width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 10px;">
+                    <option value="buyer">Buyer</option>
+                    <option value="farmer">Farmer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Contact Number</label>
+                <input type="text" name="contact_number"
+                    style="width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 10px;">
+            </div>
+
+            <button type="submit" class="btn"
+                style="width: 100%; padding: 14px; background: #4f46e5; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;">
+                Create User
+            </button>
+            <a href="{{ url_for('admin.users') }}"
+                style="display: block; text-align: center; margin-top: 15px; color: #6b7280; text-decoration: none;">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Google Fonts & Animations -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<style>
+    :root {
+        --ai-primary: #10b981;
+        --ai-secondary: #6366f1;
+        --ai-dark: #0f172a;
+        --ai-glass: rgba(255, 255, 255, 0.03);
+        --ai-glass-border: rgba(255, 255, 255, 0.1);
+        --ai-text: #f8fafc;
+        --ai-text-dim: #94a3b8;
+    }
+
+    body {
+        background: #020617;
+        font-family: 'Outfit', sans-serif;
+        color: var(--ai-text);
+        overflow-x: hidden;
+    }
+
+    /* Shared Mesh Background */
+    .mesh-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background:
+            radial-gradient(at 0% 0%, hsla(161, 84%, 39%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(242, 81%, 67%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, hsla(41, 91%, 50%, 0.05) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, hsla(161, 84%, 39%, 0.05) 0px, transparent 50%);
+        filter: blur(80px);
+    }
+
+    .settings-container {
+        padding: 80px 20px;
+        min-height: calc(100vh - 80px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .page-header h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+        letter-spacing: -0.05em;
+    }
+
+    .settings-card {
+        background: var(--ai-glass);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ai-glass-border);
+        border-radius: 32px;
+        padding: 48px;
+        width: 100%;
+        max-width: 650px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 32px;
+        color: var(--ai-text);
+    }
+
+    .form-group {
+        margin-bottom: 28px;
+    }
+
+    .form-label {
+        color: var(--ai-text-dim);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .ai-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--ai-glass-border);
+        padding: 16px 20px;
+        border-radius: 16px;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .ai-input:focus {
+        border-color: var(--ai-primary);
+        background: rgba(255, 255, 255, 0.08);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    .ai-input[readonly] {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Custom Switch Styling */
+    .switch-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: var(--ai-primary);
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(24px);
+    }
+
+    .btn-ai-save {
+        background: linear-gradient(135deg, var(--ai-primary) 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 16px 40px;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-ai-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-cancel {
+        color: var(--ai-text-dim);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+    .btn-cancel:hover {
+        color: white;
+    }
+
+    .footer-actions {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-top: 40px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+</style>
+
+<div class="mesh-bg"></div>
+
+<div class="settings-container animate__animated animate__fadeIn">
+    <div class="page-header">
+        <h1>Admin Settings</h1>
+        <p style="color:var(--ai-text-dim);">Global configuration and profile preferences</p>
+    </div>
+
+    <div class="settings-card">
+        <div class="section-title">
+            <i class="fas fa-user-cog" style="color:var(--ai-primary);"></i>
+            <span>Account Parameters</span>
+        </div>
+
+        <form action="{{ url_for('admin.settings') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">System Identity / Username</label>
+                <input type="text" class="ai-input" value="{{ session['username'] }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Default Localisation</label>
+                <select class="ai-input"
+                    style="appearance: none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 20px center; background-size: 16px;">
+                    <option selected>English (International)</option>
+                    <option>Hindi (Localized)</option>
+                    <option>Tamil (Localized)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Subsystem Notifications</label>
+                <div class="switch-container">
+                    <span style="font-size: 0.95rem; color: var(--ai-text);">New Entity Registration Alerts</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p style="margin-top: 12px; color: var(--ai-text-dim); font-size: 0.85rem;">Receive real-time pulses
+                    when new farmers join the network.</p>
+            </div>
+
+            <div class="footer-actions">
+                <button type="submit" class="btn-ai-save">
+                    Pulse Changes
+                </button>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn-cancel">
+                    Abort Changes
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_dashboard.css') }}">
+<link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="farmer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-tractor"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('farmer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('farmer.my_products') }}" class="menu-item">
+                <i class="fas fa-box"></i> My Products
+            </a>
+            <a href="{{ url_for('farmer.analytics') }}" class="menu-item">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+            <a href="{{ url_for('farmer.history') }}" class="menu-item active">
+                <i class="fas fa-history"></i> History
+            </a>
+            <a href="{{ url_for('farmer.offers') }}" class="menu-item">
+                <i class="fas fa-bell"></i> Offers
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-area">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="page-title">Sales History</div>
+
+            <div class="user-snippet">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{
+                        session['username'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Farmer</div>
+                </div>
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+                <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 5px;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Content Padding -->
+        <div class="content-pad">
+            <div class="card"
+                style="padding: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; border-radius: 12px; overflow: hidden;">
+                {% if transactions %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 2px solid #e5e7eb;">
+                                <th
+                                    style="padding: 15px 20px; text-align: left; font-size: 0.85rem; color: #6b7280; font-weight: 600;">
+                                    DATE</th>
+                                <th
+                                    style="padding: 15px 20px; text-align: left; font-size: 0.85rem; color: #6b7280; font-weight: 600;">
+                                    PRODUCT</th>
+                                <th
+                                    style="padding: 15px 20px; text-align: left; font-size: 0.85rem; color: #6b7280; font-weight: 600;">
+                                    BUYER</th>
+                                <th
+                                    style="padding: 15px 20px; text-align: left; font-size: 0.85rem; color: #6b7280; font-weight: 600;">
+                                    QTY</th>
+                                <th
+                                    style="padding: 15px 20px; text-align: left; font-size: 0.85rem; color: #6b7280; font-weight: 600;">
+                                    AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transactions %}
+                            <tr style="border-bottom: 1px solid #f3f4f6;">
+                                <td style="padding: 15px 20px; color: #374151;">{{ t.timestamp.strftime('%d %b %Y') }}
+                                </td>
+                                <td style="padding: 15px 20px;">
+                                    <div style="font-weight: 500; color: #111827;">{{ t.product.name if t.product else
+                                        "(Deleted)" }}</div>
+                                </td>
+                                <td style="padding: 15px 20px;">
+                                    <div style="font-weight: 500; color: #1f2937;">{{ t.buyer.username }}</div>
+                                    <div style="font-size: 0.8rem; color: #9ca3af;">{{ t.buyer.contact_number }}</div>
+                                </td>
+                                <td style="padding: 15px 20px; color: #374151;">{{ t.quantity }} kg</td>
+                                <td style="padding: 15px 20px; color: #10b981; font-weight: 600;">₹{{
+                                    "%.2f"|format(t.total_amount) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                    <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                    <h3>No sales yet</h3>
+                    <p>Your sales history will appear here once you complete orders.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

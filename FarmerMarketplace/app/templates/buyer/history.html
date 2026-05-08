@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_dashboard.css') }}">
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="buyer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-shopping-basket"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('buyer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('buyer.marketplace') }}" class="menu-item">
+                <i class="fas fa-store"></i> Marketplace
+            </a>
+            <a href="{{ url_for('buyer.offers') }}" class="menu-item">
+                <i class="fas fa-tags"></i> My Offers
+            </a>
+            <a href="{{ url_for('buyer.history') }}" class="menu-item active">
+                <i class="fas fa-history"></i> Orders
+            </a>
+            <a href="{{ url_for('buyer.analytics') }}" class="menu-item">
+                <i class="fas fa-chart-pie"></i> Expenses
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-area">
+        <header class="top-bar">
+            <div class="page-title">Order History</div>
+
+            <div class="user-snippet">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{ session['username']
+                        }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Verified Buyer</div>
+                </div>
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+            </div>
+        </header>
+
+        <div class="content-pad">
+            <div class="dash-card">
+                <div class="card-header">
+                    <h3 class="card-title">Completed Orders</h3>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);">Total: {{ transactions|length }}
+                        orders</span>
+                </div>
+
+                <div class="table-responsive">
+                    {% if transactions %}
+                    <table class="txn-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Product Details</th>
+                                <th>Farmer</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Last Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transactions %}
+                            <tr>
+                                <td style="color: var(--text-secondary);">#{{ t.id }}</td>
+                                <td>
+                                    <div style="font-weight: 500; color: var(--text-primary);">{{
+                                        t.timestamp.strftime('%d %b, %Y') }}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">{{
+                                        t.timestamp.strftime('%I:%M %p') }}</div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div
+                                            style="width: 32px; height: 32px; background: #f3f4f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                            🍎
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 500;">{{ t.product.name if t.product else
+                                                '(Deleted)' }}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text-secondary);">{{ t.quantity
+                                                }} kg</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500;">{{ t.farmer.username }}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">{{
+                                        t.farmer.contact_number }}</div>
+                                </td>
+                                <td>
+                                    <span
+                                        style="background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">Success</span>
+                                </td>
+                                <td style="font-weight: 600; color: #10b981;">₹{{ "%.2f"|format(t.total_amount) }}</td>
+                                <td>
+                                    <a href="{{ url_for('buyer.download_bill', transaction_id=t.id) }}"
+                                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #eff6ff; color: #2563eb; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: background 0.2s;">
+                                        <i class="fas fa-file-invoice"></i> Download Bill
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="padding: 60px; text-align: center; color: var(--text-secondary);">
+                        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <h3>No orders yet</h3>
+                        <p>Your complete purchase history will appear here once you make a purchase.</p>
+                        <a href="{{ url_for('buyer.marketplace') }}"
+                            style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: var(--buyer-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Start
+                            Shopping</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

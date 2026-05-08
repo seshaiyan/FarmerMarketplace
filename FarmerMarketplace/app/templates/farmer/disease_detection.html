@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_dashboard.css') }}">
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="farmer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-tractor"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('farmer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('farmer.my_products') }}" class="menu-item">
+                <i class="fas fa-box"></i> My Products
+            </a>
+            <a href="{{ url_for('farmer.analytics') }}" class="menu-item">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+            <a href="{{ url_for('farmer.history') }}" class="menu-item">
+                <i class="fas fa-history"></i> History
+            </a>
+            <a href="{{ url_for('farmer.offers') }}" class="menu-item">
+                <i class="fas fa-bell"></i> Offers
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-area">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="page-title">AI Crop Disease Detection</div>
+
+            <div class="user-snippet">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{
+                        session['username'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Farmer</div>
+                </div>
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+                <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 5px;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Content Padding -->
+        <div class="content-pad">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 0;">
+
+                <!-- Upload Section -->
+                <div class="card"
+                    style="padding: 30px; height: fit-content; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top: 0; color: var(--text-primary);">Upload Leaf Image</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Upload a clear photo of the affected
+                        leaf. Our AI model will
+                        analyze it for common diseases.</p>
+
+                    <form method="POST" enctype="multipart/form-data" onsubmit="showLoading()"
+                        style="text-align: center; border: 2px dashed #bdc3c7; padding: 40px; border-radius: 10px; position: relative;">
+
+                        <!-- Loading Overlay -->
+                        <div id="loadingOverlay"
+                            style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 10px; flex-direction: column; justify-content: center; align-items: center;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 3em; color: #3498db;"></i>
+                            <p style="margin-top: 15px; color: #3498db; font-weight: bold;">Analyzing Crop Health...</p>
+                        </div>
+
+                        <i class="fas fa-cloud-upload-alt"
+                            style="font-size: 3em; color: #3498db; margin-bottom: 20px;"></i>
+                        <br>
+                        <input type="file" name="file" accept="image/*" required style="margin-bottom: 20px;">
+                        <br>
+                        <button type="submit" class="btn"
+                            style="background: #3498db; width: 100%; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600;">Analyze
+                            Crop</button>
+                    </form>
+                </div>
+
+                <script>
+                    function showLoading() {
+                        document.getElementById('loadingOverlay').style.display = 'flex';
+                    }
+                </script>
+
+                <!-- Results Section -->
+                <div class="card"
+                    style="padding: 30px; background: #f9f9f9; height: fit-content; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top: 0; color: var(--text-primary);">Diagnosis Report</h3>
+
+                    {% if result %}
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div
+                            style="display: inline-block; padding: 10px 20px; border-radius: 20px; background: {{ result.color }}; color: white; font-weight: bold; margin-bottom: 20px;">
+                            {{ result.status }} ({{ result.confidence }})
+                        </div>
+
+                        <h2 style="color: #2c3e50; margin-bottom: 10px;">{{ result.disease }}</h2>
+
+                        <div
+                            style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid {{ result.color }}; text-align: left; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <strong>Recommended Action:</strong>
+                            <p style="margin-top: 5px; color: #555;">{{ result.remedy }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; color: #bdc3c7; margin-top: 50px;">
+                        <i class="fas fa-microscope" style="font-size: 4em; margin-bottom: 20px;"></i>
+                        <p>Upload an image to see the analysis results here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

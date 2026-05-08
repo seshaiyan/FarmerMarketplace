@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_dashboard.css') }}">
+<style>
+    .payment-option-card {
+        border: 2px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .payment-option-card:hover {
+        border-color: #3b82f6;
+        background: #f8fafc;
+    }
+
+    .payment-option-card.active {
+        border-color: #2563eb;
+        background: #eff6ff;
+    }
+
+    .radio-circle {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #cbd5e1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .active .radio-circle {
+        border-color: #2563eb;
+    }
+
+    .active .radio-circle::after {
+        content: '';
+        width: 10px;
+        height: 10px;
+        background: #2563eb;
+        border-radius: 50%;
+    }
+
+    .option-icon {
+        width: 45px;
+        height: 45px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .payment-details-panel {
+        display: none;
+        margin-top: 15px;
+        padding: 20px;
+        border-radius: 12px;
+        background: white;
+        border: 1px solid #e2e8f0;
+    }
+
+    .payment-details-panel.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-box {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div style="min-height: 100vh; background: #f3f4f6; padding: 40px 20px;">
+    <div style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 350px; gap: 30px;">
+
+        <!-- Payment Methods -->
+        <div class="card"
+            style="padding: 30px; border: none; border-radius: 20px; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <h2 style="margin: 0 0 25px; color: #1e293b; font-size: 1.5rem;">Choose Payment Method</h2>
+
+            <div id="payment-options">
+                <!-- UPI Option -->
+                <div class="payment-option-card active" onclick="selectPayment('upi')">
+                    <div class="radio-circle"></div>
+                    <div class="option-icon" style="color: #6366f1;"><i class="fas fa-mobile-alt"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #1e293b;">UPI / QR Code</div>
+                        <div style="font-size: 0.85rem; color: #64748b;">Pay via Google Pay, PhonePe, or BHIM</div>
+                    </div>
+                </div>
+
+                <!-- Card Option -->
+                <div class="payment-option-card" onclick="selectPayment('card')">
+                    <div class="radio-circle"></div>
+                    <div class="option-icon" style="color: #ea580c;"><i class="fas fa-credit-card"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #1e293b;">Credit / Debit Card</div>
+                        <div style="font-size: 0.85rem; color: #64748b;">All major banks supported</div>
+                    </div>
+                </div>
+
+                <!-- NetBanking Option -->
+                <div class="payment-option-card" onclick="selectPayment('netbanking')">
+                    <div class="radio-circle"></div>
+                    <div class="option-icon" style="color: #059669;"><i class="fas fa-university"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #1e293b;">Net Banking</div>
+                        <div style="font-size: 0.85rem; color: #64748b;">Choose from over 50+ banks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Panels -->
+            <div id="upi-panel" class="payment-details-panel show">
+                {% if farmer.upi_id %}
+                <div style="text-align: center; padding: 10px 0;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa={{ farmer.upi_id }}&pn={{ farmer.username }}&am={{ total_amount }}&cu=INR"
+                        alt="QR" style="margin-bottom: 15px; border-radius: 8px; border: 1px solid #eee;">
+                    <p style="margin: 0; font-weight: 600; color: #334155;">Scan to Pay</p>
+                    <p style="margin: 5px 0 0; font-size: 0.85rem; color: #64748b;">Farmer UPI: {{ farmer.upi_id }}</p>
+                </div>
+                {% else %}
+                <p style="text-align: center; color: #ef4444; font-size: 0.9rem;">Farmer has not provided a UPI ID.
+                    Please try another method.</p>
+                {% endif %}
+            </div>
+
+            <div id="card-panel" class="payment-details-panel">
+                <div class="form-group">
+                    <label>Card Number</label>
+                    <input type="text" class="form-input" placeholder="XXXX XXXX XXXX XXXX">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="text" class="form-input" placeholder="MM/YY">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="password" class="form-input" placeholder="***">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cardholder Name</label>
+                    <input type="text" class="form-input" placeholder="Full Name">
+                </div>
+            </div>
+
+            <div id="netbanking-panel" class="payment-details-panel">
+                <div class="form-group">
+                    <label>Select Bank</label>
+                    <select class="form-input">
+                        <option>State Bank of India</option>
+                        <option>HDFC Bank</option>
+                        <option>ICICI Bank</option>
+                        <option>Axis Bank</option>
+                        <option>Kotak Mahindra Bank</option>
+                    </select>
+                </div>
+                <p style="font-size: 0.85rem; color: #64748b;">We will redirect you to your bank's secure login page.
+                </p>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div>
+            <div class="card"
+                style="padding: 25px; border: none; border-radius: 20px; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                <h3 style="margin: 0 0 20px; font-size: 1.1rem; color: #1e293b;">Order Summary</h3>
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #64748b;">Product</span>
+                        <span style="font-weight: 600;">{{ product.name }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #64748b;">Quantity</span>
+                        <span style="font-weight: 600;">{{ quantity }}kg</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #64748b;">Price / kg</span>
+                        <span style="font-weight: 600;">₹{{ "%.2f"|format(price) }}</span>
+                    </div>
+                </div>
+
+                <div
+                    style="border-top: 2px dashed #f1f5f9; margin-top: 15px; padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; color: #1e293b;">Grand Total</span>
+                    <span style="font-size: 1.5rem; font-weight: 800; color: #10b981;">₹{{ "%.2f"|format(total_amount)
+                        }}</span>
+                </div>
+
+                <form action="{{ url_for('buyer.confirm_payment') }}" method="POST" style="margin-top: 25px;">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" name="quantity" value="{{ quantity }}">
+                    <input type="hidden" name="price" value="{{ price }}">
+                    {% if offer_id %}<input type="hidden" name="offer_id" value="{{ offer_id }}">{% endif %}
+
+                    <button type="submit"
+                        style="width: 100%; padding: 15px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">
+                        Secure Checkout
+                    </button>
+                </form>
+
+                <p style="margin: 15px 0 0; font-size: 0.75rem; text-align: center; color: #94a3b8;">
+                    <i class="fas fa-shield-alt"></i> SSL Encrypted & Secure
+                </p>
+            </div>
+
+            <button onclick="showCancelModal()"
+                style="width: 100%; margin-top: 15px; background: none; border: none; color: #94a3b8; font-weight: 500; cursor: pointer; font-size: 0.9rem;">
+                Cancel this transaction
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation -->
+<div id="cancelModal" class="modal-overlay">
+    <div class="modal-box">
+        <div
+            style="width: 60px; height: 60px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px;">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 10px;">Stop Payment?</h3>
+        <p style="color: #6b7280; font-size: 0.95rem; margin-bottom: 25px;">Are you sure you want to cancel? Your order
+            progress will be lost.</p>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeCancelModal()"
+                style="flex: 1; padding: 12px; background: #f3f4f6; color: #374151; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Maintain</button>
+            <a href="{{ url_for('buyer.marketplace') }}"
+                style="flex: 1; padding: 12px; background: #ef4444; color: white; border-radius: 8px; font-weight: 600; text-decoration: none; display: block;">Yes,
+                Abort</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectPayment(type) {
+        // Update cards
+        document.querySelectorAll('.payment-option-card').forEach(card => card.classList.remove('active'));
+        document.querySelector(`.payment-option-card[onclick*="${type}"]`).classList.add('active');
+
+        // Update panels
+        document.querySelectorAll('.payment-details-panel').forEach(panel => panel.classList.remove('show'));
+        document.getElementById(`${type}-panel`).classList.add('show');
+    }
+
+    const modal = document.getElementById('cancelModal');
+    function showCancelModal() { modal.style.display = 'flex'; }
+    function closeCancelModal() { modal.style.display = 'none'; }
+    window.onclick = (e) => { if (e.target === modal) closeCancelModal(); }
+</script>
+{% endblock %}

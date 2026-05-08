@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_dashboard.css') }}">
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar (Same as Dashboard) -->
+    <aside class="farmer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-tractor"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('farmer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('farmer.my_products') }}" class="menu-item active">
+                <i class="fas fa-box"></i> My Products
+            </a>
+            <a href="{{ url_for('farmer.analytics') }}" class="menu-item">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+            <a href="{{ url_for('farmer.history') }}" class="menu-item">
+                <i class="fas fa-history"></i> History
+            </a>
+            <a href="{{ url_for('farmer.offers') }}" class="menu-item">
+                <i class="fas fa-bell"></i> Offers
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-area">
+        <header class="top-bar">
+            <div class="page-title">Add New Product</div>
+            <div class="user-snippet">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{ session['username']
+                        }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Farmer</div>
+                </div>
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+            </div>
+        </header>
+
+        <div class="content-pad">
+            <div class="tool-card" style="max-width: 800px; margin: 0 auto;">
+                <h3 style="margin-bottom: 20px; color: var(--text-primary);">Details</h3>
+
+                <form method="POST" enctype="multipart/form-data">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label
+                                style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">Product
+                                Name</label>
+                            <input type="text" name="name" placeholder="e.g. Fresh Tomatoes" required
+                                style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">Category/Desc</label>
+                            <input type="text" name="condition" placeholder="e.g. Organic, Hybrid" required
+                                style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label
+                                style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">Price
+                                (₹/kg)</label>
+                            <input type="number" step="0.01" name="price" placeholder="40" required
+                                style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">Quantity
+                                (kg)</label>
+                            <input type="number" name="quantity" placeholder="100" required
+                                style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                        </div>
+                    </div>
+
+                    <h4
+                        style="margin: 20px 0 15px 0; color: var(--text-primary); border-top: 1px solid #f3f4f6; padding-top: 20px;">
+                        Location Details</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <input type="text" name="state" placeholder="State" value="{{ user.state }}" required
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                        <input type="text" name="district" placeholder="District" value="{{ user.district }}" required
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                        <input type="text" name="place" placeholder="Village/Town" value="{{ user.place }}" required
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <label
+                            style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">Current
+                            UPI ID (for payments)</label>
+                        <input type="text" name="upi_id" value="{{ user.upi_id or '' }}" placeholder="username@bank"
+                            required
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none; background: #f9fafb;">
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <label
+                            style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">Product
+                            Image</label>
+                        <input type="file" name="image" accept="image/*" required
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none;">
+                    </div>
+
+                    <button type="submit" class="action-btn" style="width: 100%; padding: 14px; font-size: 1rem;">
+                        List Product for Sale
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyer Dashboard | FARMER 2 BUYER</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_dashboard.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="buyer-sidebar">
+            <div class="brand-section">
+                <i class="fas fa-shopping-basket"></i> FARMER 2 BUYER
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="{{ url_for('buyer.dashboard') }}" class="menu-item active">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                <a href="{{ url_for('buyer.marketplace') }}" class="menu-item">
+                    <i class="fas fa-store"></i> Marketplace
+                </a>
+                <a href="{{ url_for('buyer.offers') }}" class="menu-item">
+                    <i class="fas fa-tags"></i> My Offers
+                </a>
+                <a href="{{ url_for('buyer.history') }}" class="menu-item">
+                    <i class="fas fa-history"></i> Orders
+                </a>
+                <a href="{{ url_for('buyer.analytics') }}" class="menu-item">
+                    <i class="fas fa-chart-pie"></i> Expenses
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-area">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">Dashboard Overview</div>
+
+                <div class="user-snippet">
+                    <div class="user-meta" style="text-align: right; line-height: 1.2;">
+                        <div style="font-weight: 700; font-size: 0.9rem; color: white;">{{ session['username'] }}</div>
+                        <div
+                            style="font-size: 0.7rem; color: var(--text-slate); text-transform: uppercase; letter-spacing: 0.5px;">
+                            Verified Buyer</div>
+                    </div>
+                    <div class="user-avatar-circle">
+                        {{ session['username'][0]|upper }}
+                    </div>
+                    <a href="{{ url_for('auth.logout') }}" class="logout-link" title="Logout"
+                        style="color: #ef4444; font-size: 1.2rem; display: flex; align-items: center; transition: transform 0.2s;">
+                        <i class="fas fa-power-off"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div id="flash-container" style="max-width: 1200px; margin: 10px auto; padding: 0 20px;">
+                {% for message in messages %}
+                <div class="alert-box"
+                    style="background: #f1c40f; padding: 12px 20px; border-radius: 8px; margin-bottom: 15px; color: #333; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #d4ac0d; animation: slideIn 0.5s ease-out;">
+                    <span style="font-weight: 500; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle" style="margin-right: 10px;"></i>
+                        {{ message }}
+                    </span>
+                    <button onclick="this.parentElement.remove()"
+                        style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <script>
+                setTimeout(function () {
+                    const flashContainer = document.getElementById('flash-container');
+                    if (flashContainer) {
+                        const alerts = flashContainer.getElementsByClassName('alert-box');
+                        for (let alert of alerts) {
+                            alert.style.transition = 'opacity 0.5s ease-out';
+                            alert.style.opacity = '0';
+                            setTimeout(() => alert.remove(), 500);
+                        }
+                    }
+                }, 5000);
+            </script>
+
+            <style>
+                @keyframes slideIn {
+                    from {
+                        transform: translateY(-10px);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
+            </style>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Content Area -->
+            <div class="content-pad">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <h2>Good day, {{ session['username'] }}! ✨</h2>
+                    <p>Ready to source the best produce from local farmers through your futuristic dashboard.</p>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="stats-grid">
+                    <a href="{{ url_for('buyer.analytics') }}" class="stat-card">
+                        <div class="stat-icon" style="color: #3b82f6;">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₹{{ "%.2f"|format(total_spent) }}</h3>
+                            <p>Total Investment</p>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('buyer.history') }}" class="stat-card">
+                        <div class="stat-icon" style="color: #10b981;">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ order_count }}</h3>
+                            <p>Successful Orders</p>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('buyer.offers') }}" class="stat-card">
+                        <div class="stat-icon" style="color: #f97316;">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ pending_offers }}</h3>
+                            <p>Pending Deals</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Main Grid -->
+                <div class="dashboard-grid">
+                    <!-- Recent Orders Table -->
+                    <div class="dash-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Orders</h3>
+                            <a href="{{ url_for('buyer.history') }}" class="view-all">View All <i
+                                    class="fas fa-chevron-right"></i></a>
+                        </div>
+                        <div class="table-responsive">
+                            {% if recent_transactions %}
+                            <table class="txn-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for t in recent_transactions %}
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div
+                                                    style="width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-leaf"
+                                                        style="color: #10b981; font-size: 0.8rem;"></i>
+                                                </div>
+                                                <span style="font-weight: 600;">{{ t.product.name if t.product else
+                                                    'Deleted' }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ t.quantity }} kg</td>
+                                        <td style="color: #3b82f6; font-weight: 700;">₹{{ "%.2f"|format(t.total_amount)
+                                            }}</td>
+                                        <td style="color: var(--text-slate); font-size: 0.85rem;">{{
+                                            t.timestamp.strftime('%d %b') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <div style="padding: 60px; text-align: center; color: var(--text-slate);">
+                                <i class="fas fa-ghost" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.2;"></i>
+                                <p>No data available in this sector.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="dash-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Actions</h3>
+                        </div>
+                        <div style="padding-top: 10px;">
+                            <a href="{{ url_for('buyer.marketplace') }}" class="quick-action-link">
+                                <div class="action-icon"><i class="fas fa-rocket"></i></div>
+                                <div class="action-text">
+                                    <div style="color: white; font-weight: 700;">Market Launch</div>
+                                    <span style="font-size: 0.8rem;">Browse fresh inventory</span>
+                                </div>
+                            </a>
+
+                            <a href="{{ url_for('buyer.offers') }}" class="quick-action-link">
+                                <div class="action-icon" style="color: #f97316; background: rgba(249, 115, 22, 0.1);"><i
+                                        class="fas fa-satellite-dish"></i></div>
+                                <div class="action-text">
+                                    <div style="color: white; font-weight: 700;">Deal Radar</div>
+                                    <span style="font-size: 0.8rem;">Active negotiations</span>
+                                </div>
+                            </a>
+
+                            <a href="{{ url_for('buyer.analytics') }}" class="quick-action-link">
+                                <div class="action-icon" style="color: #a855f7; background: rgba(168, 85, 247, 0.1);"><i
+                                        class="fas fa-microchip"></i></div>
+                                <div class="action-text">
+                                    <div style="color: white; font-weight: 700;">Neural Analytics</div>
+                                    <span style="font-size: 0.8rem;">Spending patterns</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

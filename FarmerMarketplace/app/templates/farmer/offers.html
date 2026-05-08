@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_dashboard.css') }}">
+<link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="farmer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-tractor"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('farmer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('farmer.my_products') }}" class="menu-item">
+                <i class="fas fa-box"></i> My Products
+            </a>
+            <a href="{{ url_for('farmer.analytics') }}" class="menu-item">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+            <a href="{{ url_for('farmer.history') }}" class="menu-item">
+                <i class="fas fa-history"></i> History
+            </a>
+            <a href="{{ url_for('farmer.offers') }}" class="menu-item active">
+                <i class="fas fa-bell"></i> Offers
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-area">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="page-title">Recent Offers</div>
+
+            <div class="user-snippet">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{
+                        session['username'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Farmer</div>
+                </div>
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+                <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 5px;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Content Padding -->
+        <div class="content-pad">
+            {% if offers %}
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
+                {% for offer in offers %}
+                <div class="card"
+                    style="padding: 15px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-radius: 12px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; background: white;">
+
+                    <!-- Header: Product & Price -->
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                            title="{{ offer.product.name }}">
+                            {{ offer.product.name }}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">ID: #{{ offer.product_id }}</div>
+                        <div style="margin-top: 8px; font-size: 1.1rem; font-weight: 700; color: var(--farmer-dark);">
+                            ₹{{ offer.offer_price }}<span
+                                style="font-size: 0.8rem; font-weight: 400; color: var(--text-secondary);">/kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Buyer Info -->
+                    <div
+                        style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px; border-top: 1px solid #f3f4f6; padding-top: 8px;">
+                        <div style="margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-user-circle"></i>
+                            <span
+                                style="font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{
+                                offer.buyer.username }}</span>
+                        </div>
+                        {% if offer.buyer.contact_number %}
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-phone"></i> <span style="font-size: 0.75rem;">{{
+                                    offer.buyer.contact_number }}</span></span>
+                            <a href="sms:{{ offer.buyer.contact_number }}" style="color: var(--farmer-accent);"
+                                title="Send SMS">
+                                <i class="fas fa-comment-sms"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div>
+                        {% if offer.status == 'Pending' %}
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <a href="{{ url_for('farmer.respond_offer', offer_id=offer.id, action='accept') }}"
+                                style="background: #10b981; color: white; padding: 6px 0; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.8rem; text-align: center; display: block;">
+                                Accept
+                            </a>
+                            <a href="{{ url_for('farmer.respond_offer', offer_id=offer.id, action='reject') }}"
+                                style="background: #ef4444; color: white; padding: 6px 0; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.8rem; text-align: center; display: block;">
+                                Reject
+                            </a>
+                        </div>
+                        {% else %}
+                        <div
+                            style="text-align: center; padding: 6px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; 
+                            {{ 'background: #dcfce7; color: #16a34a;' if offer.status == 'Accepted' else 'background: #fee2e2; color: #ef4444;' }}">
+                            {{ offer.status }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card"
+                style="text-align: center; padding: 40px; color: var(--text-secondary); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); background: white;">
+                <i class="fas fa-bell-slash" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                <h3>No New Offers</h3>
+                <p>When buyers make an offer on your produce, it will appear here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

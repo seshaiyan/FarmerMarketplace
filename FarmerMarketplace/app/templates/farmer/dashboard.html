@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard | FARMER 2 BUYER</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="farmer-sidebar">
+            <div class="brand-section">
+                <i class="fas fa-tractor"></i> FARMER 2 BUYER
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="{{ url_for('farmer.dashboard') }}" class="menu-item active">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                <a href="{{ url_for('farmer.my_products') }}" class="menu-item">
+                    <i class="fas fa-box"></i> My Products
+                </a>
+                <a href="{{ url_for('farmer.analytics') }}" class="menu-item">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </a>
+                <a href="{{ url_for('farmer.history') }}" class="menu-item">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="{{ url_for('farmer.offers') }}" class="menu-item">
+                    <i class="fas fa-bell"></i> Offers
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-area">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">Dataset Overview</div>
+
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <form action="{{ url_for('farmer.update_upi') }}" method="POST"
+                        style="display: flex; align-items: center; gap: 8px;">
+                        <div style="position: relative;">
+                            <i class="fas fa-wallet"
+                                style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.8rem;"></i>
+                            <input type="text" name="upi_id" placeholder="UPI ID"
+                                value="{{ current_user_upi if current_user_upi else '' }}"
+                                style="padding: 8px 12px 8px 30px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; outline: none; width: 180px;">
+                        </div>
+                        <button type="submit"
+                            style="background: var(--farmer-accent); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                            Save
+                        </button>
+                    </form>
+
+                    <div class="user-snippet">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{
+                                session['username'] }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Farmer</div>
+                        </div>
+                        <div class="user-avatar-circle">
+                            {{ session['username'][0]|upper }}
+                        </div>
+                        <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 5px;" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div id="flash-container" style="max-width: 1200px; margin: 10px auto; padding: 0 20px;">
+                {% for message in messages %}
+                <div class="alert-box"
+                    style="background: #f1c40f; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; color: #333; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #d4ac0d; animation: slideIn 0.5s ease-out;">
+                    <span style="font-weight: 500; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle" style="margin-right: 10px;"></i>
+                        {{ message }}
+                    </span>
+                    <button onclick="this.parentElement.remove()"
+                        style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <script>
+                setTimeout(function () {
+                    const flashContainer = document.getElementById('flash-container');
+                    if (flashContainer) {
+                        const alerts = flashContainer.getElementsByClassName('alert-box');
+                        for (let alert of alerts) {
+                            alert.style.transition = 'opacity 0.5s ease-out';
+                            alert.style.opacity = '0';
+                            setTimeout(() => alert.remove(), 500);
+                        }
+                    }
+                }, 5000);
+            </script>
+
+            <style>
+                @keyframes slideIn {
+                    from {
+                        transform: translateY(-10px);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
+            </style>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Content Padding -->
+            <div class="content-pad">
+
+                <!-- Greeting Banner -->
+                <div class="greeting-card" style="background: linear-gradient(135deg, #064e3b, #065f46);">
+                    <div class="greeting-text">
+                        <h2 style="font-family: 'DM Sans', sans-serif;">Hello, {{ session['username'] }}! 🌾</h2>
+                        <p style="color: #d1fae5;">Your farm is looking productive today. Let's grow together.</p>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('farmer.add_product') }}" class="action-btn"
+                            style="background: var(--farmer-accent); color: white; border: none; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);">
+                            <i class="fas fa-plus"></i> Add New Product
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <!-- Weather Widget -->
+                    <a href="{{ url_for('farmer.analytics') }}" class="stat-box weather-widget"
+                        style="text-decoration: none; color: inherit;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px;"><i
+                                        class="fas fa-map-marker-alt"></i> {{ weather.location }}</div>
+                                <div style="font-size: 2.5rem; font-weight: 700;">{{ weather.temp }}</div>
+                                <div style="font-weight: 500;">{{ weather.condition }}</div>
+                            </div>
+                            <i class="fas fa-cloud-sun" style="font-size: 3.5rem; opacity: 0.8;"></i>
+                        </div>
+                        <div
+                            style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); display: flex; gap: 20px; font-size: 0.85rem;">
+                            <span><i class="fas fa-wind"></i> {{ weather.wind_speed }}</span>
+                            <span><i class="fas fa-tint"></i> {{ weather.humidity }}</span>
+                        </div>
+                    </a>
+
+                    <!-- Sales Stat -->
+                    <a href="{{ url_for('farmer.history') }}" class="stat-box"
+                        style="text-decoration: none; color: inherit;">
+                        <div class="metric-label">Estimated Earnings (This Month)</div>
+                        <div class="metric-value" style="color: var(--farmer-dark);">₹{{
+                            "{:,.0f}".format(earnings_month) }}</div>
+                        <div style="font-size: 0.85rem; color: #10b981; display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-arrow-up"></i> Live tracking
+                        </div>
+                    </a>
+
+                    <!-- Active Listings -->
+                    <a href="{{ url_for('farmer.my_products') }}" class="stat-box"
+                        style="text-decoration: none; color: inherit;">
+                        <div class="metric-label">Active Listings</div>
+                        <div class="metric-value">{{ active_listings }}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                            Across {{ categories_count }} categories
+                        </div>
+                    </a>
+                </div>
+
+                <div class="tools-grid">
+                    <!-- Market Trends Chart -->
+                    <div class="tool-card" style="grid-column: span 2;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-primary);">Market Price Trends
+                                <span
+                                    style="font-size: 0.7rem; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 10px; vertical-align: middle; margin-left: 8px;">XGBoost
+                                    Powered</span>
+                            </h3>
+                            <span
+                                style="background: #e5e7eb; color: var(--text-secondary); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">Last
+                                6 Months</span>
+                        </div>
+                        <div style="height: 300px;">
+                            <canvas id="marketChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- AI Tools Panel -->
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <!-- Disease Detect -->
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <div class="tool-icon bg-emerald-soft"><i class="fas fa-leaf"></i></div>
+                                <div>
+                                    <h4 style="margin: 0; color: var(--text-primary);">Crop Doctor</h4>
+                                    <span style="font-size: 0.85rem; color: var(--text-secondary);">AI Disease
+                                        Detection</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
+                                Upload a photo of your crop to instantly identify diseases and get remedies.
+                            </p>
+                            <a href="{{ url_for('farmer.detect_disease') }}" class="action-btn secondary">Diagnose
+                                Now</a>
+                        </div>
+
+                        <!-- Notifications Panel -->
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <div class="tool-icon bg-blue-soft"><i class="fas fa-bell"></i></div>
+                                <div>
+                                    <h4 style="margin: 0; color: var(--text-primary);">Smart Alerts</h4>
+                                    <span style="font-size: 0.85rem; color: var(--text-secondary);">Market & AI
+                                        Notifications</span>
+                                </div>
+                            </div>
+                            <div class="notification-list"
+                                style="margin-top: 15px; max-height: 250px; overflow-y: auto;">
+                                {% if notifications %}
+                                {% for note in notifications %}
+                                <div class="notification-item"
+                                    style="padding: 10px; border-bottom: 1px solid #f3f4f6; position: relative;">
+                                    <div style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 4px;">
+                                        {% if note.type == 'price_alert' %}<i class="fas fa-chart-line"
+                                            style="color: #3b82f6;"></i>{% endif %}
+                                        {{ note.message }}
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: #9ca3af;">{{ note.timestamp.strftime('%d %b,
+                                        %H:%M') }}</div>
+                                    {% if not note.is_read %}
+                                    <span
+                                        style="position: absolute; right: 5px; top: 12px; width: 6px; height: 6px; background: #3b82f6; border-radius: 50%;"></span>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <p style="text-align: center; color: #9ca3af; font-size: 0.85rem; padding: 20px;">No new
+                                    alerts.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Schemes -->
+                        <div class="tool-card" style="flex: 1;">
+                            <div class="tool-header">
+                                <div class="tool-icon bg-orange-soft"><i class="fas fa-landmark"></i></div>
+                                <div>
+                                    <h4 style="margin: 0; color: var(--text-primary);">Govt. Schemes</h4>
+                                    <span style="font-size: 0.85rem; color: var(--text-secondary);">Latest
+                                        Opportunities</span>
+                                </div>
+                            </div>
+                            <div class="schemes-list">
+                                {% for scheme in schemes[:2] %}
+                                <div class="scheme-item" style="padding: 10px 0;">
+                                    <a href="{{ scheme.link }}" target="_blank" class="scheme-title"
+                                        style="text-decoration: none; font-size: 0.95rem;">{{ scheme.name }} <i
+                                            class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a>
+                                    <span class="scheme-desc"
+                                        style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem;">{{
+                                        scheme.desc }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            const chartData = {{ prices | tojson | safe
+        }};
+
+        new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { family: "'Inter', sans-serif", size: 12 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { borderDash: [5, 5], color: 'rgba(0,0,0,0.05)' },
+                        title: { display: true, text: 'Price (₹/kg)', color: '#64748b' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        });
+    </script>
+
+</body>
+
+</html>

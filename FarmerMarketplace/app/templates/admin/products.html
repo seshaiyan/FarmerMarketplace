@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products | Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-leaf"></i> FARMER 2 BUYER
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-category">Main</div>
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-item">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+
+                <div class="nav-category">Management</div>
+                <a href="{{ url_for('admin.users') }}" class="nav-item">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="{{ url_for('admin.products') }}" class="nav-item active">
+                    <i class="fas fa-box-open"></i> Products
+                </a>
+                <a href="{{ url_for('admin.transactions') }}" class="nav-item">
+                    <i class="fas fa-exchange-alt"></i> Transactions
+                </a>
+
+                <div class="nav-category">AI Tools</div>
+                <a href="{{ url_for('admin.price_predictor') }}" class="nav-item">
+                    <i class="fas fa-robot"></i> Price Predictor <span class="ai-badge">AI</span>
+                </a>
+                <a href="{{ url_for('admin.disease_detect') }}" class="nav-item">
+                    <i class="fas fa-bug"></i> Disease Detect <span class="ai-badge">AI</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fas fa-search" style="color: #9ca3af;"></i>
+                    <input type="text" placeholder="Search products...">
+                </div>
+
+                <div class="header-right">
+                    <button class="icon-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                    <div class="user-profile" style="display: flex; align-items: center; gap: 10px;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; font-size: 0.9rem;">{{ session['username'] }}</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Admin</div>
+                        </div>
+                        <div class="user-avatar" style="background: #4f46e5; color: white;">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 10px;">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                <div class="card-header" style="margin-bottom: 25px;">
+                    <div>
+                        <h2 class="card-title" style="font-size: 1.5rem;">Product Inventory</h2>
+                        <p style="color: #6b7280; margin: 5px 0 0 0;">Manage all agricultural products listed on the
+                            platform.</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Product Name</th>
+                                <th>Farmer</th>
+                                <th>Category/Type</th>
+                                <th>Price (₹)</th>
+                                <th>Quantity</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>#{{ product.id }}</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-avatar" style="background: #ffedd5; color: #ea580c;">
+                                            <i class="fas fa-carrot"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 500;">{{ product.name }}</div>
+                                            <div style="font-size: 0.75rem; color: #9ca3af;">{{ product.condition }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ product.farmer.username }}</td>
+                                <td><span class="status-badge" style="background: #f3f4f6; color: #4b5563;">{{
+                                        product.weight_unit }}</span></td>
+                                <td style="font-weight: 600;">₹{{ product.price }}</td>
+                                <td>{{ product.quantity }}</td>
+                                <td>{{ product.location_district }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button class="action-btn btn-view"
+                                            onclick="alert('View details implemented in future update')"
+                                            title="View Details">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <!-- Placeholder for delete, would need a route first -->
+                                        <button class="action-btn btn-delete"
+                                            onclick="alert('Delete functionality to be connected to backend')"
+                                            title="Delete">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

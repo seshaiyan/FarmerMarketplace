@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_dashboard.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="buyer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-shopping-basket"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('buyer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('buyer.marketplace') }}" class="menu-item">
+                <i class="fas fa-store"></i> Marketplace
+            </a>
+            <a href="{{ url_for('buyer.offers') }}" class="menu-item">
+                <i class="fas fa-tags"></i> My Offers
+            </a>
+            <a href="{{ url_for('buyer.history') }}" class="menu-item">
+                <i class="fas fa-history"></i> Orders
+            </a>
+            <a href="{{ url_for('buyer.analytics') }}" class="menu-item active">
+                <i class="fas fa-chart-pie"></i> Expenses
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-area">
+        <header class="top-bar">
+            <div class="page-title">Expense Analytics</div>
+            <div class="user-snippet">
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+            </div>
+        </header>
+
+        <div class="content-pad">
+
+            <!-- Filters Card -->
+            <div class="dash-card" style="margin-bottom: 30px; border-radius: 12px; padding: 20px;">
+                <form action="{{ url_for('buyer.analytics') }}" method="GET"
+                    style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end;">
+
+                    <div style="flex: 1; min-width: 150px;">
+                        <label
+                            style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">Year</label>
+                        <select name="year" onchange="this.form.submit()"
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none; background: #f9fafb;">
+                            <option value="all" {% if sel_year=='all' %}selected{% endif %}>All Years</option>
+                            {% for y in years %}
+                            <option value="{{ y }}" {% if sel_year==y|string %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 150px;">
+                        <label
+                            style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">Month</label>
+                        <select name="month" onchange="this.form.submit()"
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none; background: #f9fafb;">
+                            <option value="all" {% if sel_month=='all' %}selected{% endif %}>All Months</option>
+                            <option value="01" {% if sel_month=='01' %}selected{% endif %}>January</option>
+                            <option value="02" {% if sel_month=='02' %}selected{% endif %}>February</option>
+                            <option value="03" {% if sel_month=='03' %}selected{% endif %}>March</option>
+                            <option value="04" {% if sel_month=='04' %}selected{% endif %}>April</option>
+                            <option value="05" {% if sel_month=='05' %}selected{% endif %}>May</option>
+                            <option value="06" {% if sel_month=='06' %}selected{% endif %}>June</option>
+                            <option value="07" {% if sel_month=='07' %}selected{% endif %}>July</option>
+                            <option value="08" {% if sel_month=='08' %}selected{% endif %}>August</option>
+                            <option value="09" {% if sel_month=='09' %}selected{% endif %}>September</option>
+                            <option value="10" {% if sel_month=='10' %}selected{% endif %}>October</option>
+                            <option value="11" {% if sel_month=='11' %}selected{% endif %}>November</option>
+                            <option value="12" {% if sel_month=='12' %}selected{% endif %}>December</option>
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 150px;">
+                        <label
+                            style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">Crop
+                            Type</label>
+                        <select name="crop" onchange="this.form.submit()"
+                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; outline: none; background: #f9fafb;">
+                            <option value="all" {% if sel_crop=='all' %}selected{% endif %}>All Crops</option>
+                            {% for c in crops %}
+                            <option value="{{ c }}" {% if sel_crop==c %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div class="dash-card">
+                <div class="card-header">
+                    <h3 class="card-title">Expense Summary</h3>
+                    <h2 style="margin: 0; color: #ef4444;">₹{{ "%.2f"|format(total_expense) }} <span
+                            style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 400;">Total</span></h2>
+                </div>
+                <div style="padding: 40px; height: 400px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        const purchaseData = {{ purchase_data | tojson
+    }};
+    const chartType = '{{ chart_type }}';
+
+    // Palette
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+    new Chart(ctx, {
+        type: chartType,
+        data: {
+            labels: Object.keys(purchaseData),
+            datasets: [{
+                label: 'Expense (₹)',
+                data: Object.values(purchaseData),
+                backgroundColor: chartType === 'line' ? 'rgba(59, 130, 246, 0.1)' : colors,
+                borderColor: chartType === 'line' ? '#3b82f6' : '#fff',
+                borderWidth: 2,
+                fill: chartType === 'line',
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#3b82f6',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                }
+            },
+            layout: {
+                padding: 20
+            },
+            scales: chartType === 'line' ? {
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [5, 5], color: '#f3f4f6' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            } : {}
+        }
+    });
+    });
+</script>
+{% endblock %}

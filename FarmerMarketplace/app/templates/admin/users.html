@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users | Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-leaf"></i> FARMER 2 BUYER
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-category">Main</div>
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-item">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+
+                <div class="nav-category">Management</div>
+                <a href="{{ url_for('admin.users') }}" class="nav-item active">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="{{ url_for('admin.products') }}" class="nav-item">
+                    <i class="fas fa-box-open"></i> Products
+                </a>
+                <a href="{{ url_for('admin.transactions') }}" class="nav-item">
+                    <i class="fas fa-exchange-alt"></i> Transactions
+                </a>
+
+                <div class="nav-category">AI Tools</div>
+                <a href="{{ url_for('admin.price_predictor') }}" class="nav-item">
+                    <i class="fas fa-robot"></i> Price Predictor <span class="ai-badge">AI</span>
+                </a>
+                <a href="{{ url_for('admin.disease_detect') }}" class="nav-item">
+                    <i class="fas fa-bug"></i> Disease Detect <span class="ai-badge">AI</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fas fa-search" style="color: #9ca3af;"></i>
+                    <input type="text" placeholder="Search users...">
+                </div>
+
+                <div class="header-right">
+                    <a href="{{ url_for('admin.notifications') }}" class="icon-btn"
+                        style="text-decoration: none; position: relative;">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </a>
+                    <div class="user-profile" style="display: flex; align-items: center; gap: 10px;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; font-size: 0.9rem;">{{ session['username'] }}</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Admin</div>
+                        </div>
+                        <a href="{{ url_for('admin.dashboard') }}" class="user-avatar"
+                            style="background: #4f46e5; color: white; text-decoration: none;">
+                            <i class="fas fa-user-shield"></i>
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 10px;">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                <div class="card-header" style="margin-bottom: 25px;">
+                    <div>
+                        <h2 class="card-title" style="font-size: 1.5rem;">User Management</h2>
+                        <p style="color: #6b7280; margin: 5px 0 0 0;">View and manage all registered users.</p>
+                    </div>
+                    <a href="{{ url_for('admin.add_user') }}" class="btn-sm"
+                        style="background-color: var(--primary-color); color: white; padding: 10px 20px; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-plus"></i> Add User
+                    </a>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tabs" style="margin-bottom: 20px;">
+                    <a href="{{ url_for('admin.users') }}"
+                        class="filter-btn {% if active_role == 'all' %}active{% endif %}"
+                        style="text-decoration: none; display: inline-block;">All Users</a>
+                    <a href="{{ url_for('admin.users', role='farmer') }}"
+                        class="filter-btn {% if active_role == 'farmer' %}active{% endif %}"
+                        style="text-decoration: none; display: inline-block;">Farmers</a>
+                    <a href="{{ url_for('admin.users', role='buyer') }}"
+                        class="filter-btn {% if active_role == 'buyer' %}active{% endif %}"
+                        style="text-decoration: none; display: inline-block;">Buyers</a>
+                </div>
+
+                <div class="table-card">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Location</th>
+                                <th>Contact</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            {% for user in users %}
+                            <tr class="user-row" data-role="{{ user.role }}" data-details='{
+                                    "id": "#{{ user.id }}",
+                                    "username": "{{ user.username }}",
+                                    "role": "{{ user.role|capitalize }}",
+                                    "contact": "{{ user.contact_number or "N/A" }}",
+                                    "state": "{{ user.state or "N/A" }}",
+                                    "district": "{{ user.district or "N/A" }}",
+                                    "place": "{{ user.place or "N/A" }}",
+                                    "upi": "{{ user.upi_id or "N/A" }}"
+                                }'>
+                                <td>#{{ user.id }}</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-avatar role-{{ user.role }}">
+                                            {{ user.username[0]|upper }}
+                                        </div>
+                                        <div style="font-weight: 500;">{{ user.username }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge role-{{ user.role }}">
+                                        {{ user.role|capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if user.state %}
+                                    {{ user.district }}, {{ user.state }}
+                                    {% else %}
+                                    <span style="color: #9ca3af;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.contact_number or '-' }}</td>
+                                <td>
+                                    {% if user.role == 'farmer' %}
+                                    {% if user.is_verified %}
+                                    <span class="status-badge status-verified">Verified</span>
+                                    {% else %}
+                                    <span class="status-badge status-pending">Pending</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="status-badge status-verified">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button class="action-btn btn-view" onclick="openModal(this)"
+                                            title="View Details">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}"
+                                            class="action-btn btn-edit" title="Edit">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST"
+                                            style="display:inline;"
+                                            onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            <button type="submit" class="action-btn btn-delete" title="Delete">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">User Details</div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                    <div class="user-avatar" id="modalAvatar" style="width: 64px; height: 64px; font-size: 1.5rem;">
+                        U
+                    </div>
+                    <div>
+                        <h3 id="modalName" style="margin: 0; font-size: 1.2rem;">Username</h3>
+                        <span id="modalRole" class="status-badge"
+                            style="margin-top: 4px; display: inline-block;">Role</span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">User ID</div>
+                    <div class="detail-value" id="modalId">#00</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Contact Number</div>
+                    <div class="detail-value" id="modalContact">+91 98765 43210</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Location</div>
+                    <div class="detail-value" id="modalLocation">State, District</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Specific Place</div>
+                    <div class="detail-value" id="modalPlace">Village Name</div>
+                </div>
+                <div class="detail-row" id="upiRow">
+                    <div class="detail-label">UPI ID</div>
+                    <div class="detail-value" id="modalUpi">example@upi</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter Logic
+        function filterUsers(role, btn) {
+            // Update buttons
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Filter rows
+            const rows = document.querySelectorAll('.user-row');
+            rows.forEach(row => {
+                if (role === 'all' || row.dataset.role === role) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('userModal');
+        const modalAvatar = document.getElementById('modalAvatar');
+
+        function openModal(btn) {
+            const row = btn.closest('tr');
+            const data = JSON.parse(row.dataset.details);
+
+            // Populate Modal
+            document.getElementById('modalName').textContent = data.username;
+            document.getElementById('modalRole').textContent = data.role;
+            document.getElementById('modalId').textContent = data.id;
+            document.getElementById('modalContact').textContent = data.contact;
+            document.getElementById('modalLocation').textContent = `${data.district}, ${data.state}`;
+            document.getElementById('modalPlace').textContent = data.place;
+
+            // Handle Role Styling
+            modalAvatar.className = `user-avatar role-${data.role.toLowerCase()}`;
+            modalAvatar.textContent = data.username.charAt(0).toUpperCase();
+
+            // Handle UPI (Only for farmers)
+            const upiRow = document.getElementById('upiRow');
+            if (data.role.toLowerCase() === 'farmer') {
+                upiRow.style.display = 'flex';
+                document.getElementById('modalUpi').textContent = data.upi;
+            } else {
+                upiRow.style.display = 'none';
+            }
+
+            // Show Modal
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            modal.classList.remove('show');
+        }
+
+        // Close on clean click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    </script>
+</body>
+
+</html>

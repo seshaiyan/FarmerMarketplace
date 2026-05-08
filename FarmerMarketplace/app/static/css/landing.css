@@ -1,0 +1,661 @@
+/* Landing Page Design System - Premium Agriculture Tech */
+:root {
+    --farmer-green: #065f46;
+    --buyer-blue: #2563eb;
+    --accent-orange: #f97316;
+    --text-dark: #0f172a;
+    --text-slate: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-dark);
+    scroll-behavior: smooth;
+    background-color: #f8fafc;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 15px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('../images/hero_bg.png') no-repeat center center/cover;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.3));
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 900px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    color: white;
+    animation: fadeInUp 1s ease-out;
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    background: linear-gradient(to right, #ffffff, #dcfce7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    max-width: 700px;
+    margin-inline: auto;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: white;
+    padding: 18px 45px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-5px) scale(1.05);
+    background: #059669;
+    box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.5);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 18px 45px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: var(--text-dark);
+}
+
+/* Features Section */
+.features {
+    padding: 140px 20px;
+    background: #f8fafc;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.section-title h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: white;
+    padding: 50px 40px;
+    border-radius: 32px;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+}
+
+.feature-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.12);
+    border-color: #d1fae5;
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    background: #ecfdf5;
+    color: #10b981;
+    font-size: 2rem;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    transition: all 0.3s;
+    animation: float 3s ease-in-out infinite;
+}
+
+.feature-card:hover .feature-icon {
+    background: #10b981;
+    color: white;
+    transform: rotateY(180deg);
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-dark);
+}
+
+.feature-card p {
+    color: var(--text-slate);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+/* Roles Section */
+.roles-section {
+    padding: 140px 20px;
+    background: linear-gradient(to bottom, #f8fafc, #ffffff);
+}
+
+.role-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.role-card {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 40px;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+/* Animated Role Card (Premium Ring Design - White Theme) */
+.animated-role-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 40px;
+    padding: 40px 30px;
+    background: white;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 420px;
+    max-width: 320px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.animated-role-card::before {
+    content: '';
+    position: absolute;
+    width: 250%;
+    background-image: linear-gradient(180deg, #10b981, #3b82f6);
+    height: 250%;
+    animation: rotBGimg 4s linear infinite;
+    transition: all 0.2s linear;
+    z-index: 0;
+}
+
+@keyframes rotBGimg {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animated-role-card::after {
+    content: '';
+    position: absolute;
+    background: white;
+    inset: 5px;
+    border-radius: 35px;
+    z-index: 1;
+}
+
+.animated-role-card>* {
+    position: relative;
+    z-index: 10;
+}
+
+.animated-role-card h3 {
+    color: var(--text-dark);
+}
+
+.animated-role-card p {
+    color: var(--text-slate);
+}
+
+.role-icon-wrapper,
+.role-btn {
+    z-index: 10 !important;
+}
+
+.animated-role-card:hover {
+    transform: translateY(-20px) scale(1.02);
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.1);
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 0;
+}
+
+.role-card:hover::before {
+    opacity: 0.05;
+}
+
+.role-farmer:hover::before {
+    background: var(--farmer-green);
+}
+
+.role-buyer:hover::before {
+    background: var(--buyer-blue);
+}
+
+.role-admin:hover::before {
+    background: #ef4444;
+}
+
+.role-card:hover {
+    transform: translateY(-20px) scale(1.02);
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.15);
+}
+
+.role-icon-wrapper {
+    width: 100px;
+    height: 100px;
+    border-radius: 30px;
+    margin: 0 auto 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.role-farmer .role-icon-wrapper {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.role-buyer .role-icon-wrapper {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.role-admin .role-icon-wrapper {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.role-card h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.role-card p {
+    font-size: 1.1rem;
+    color: var(--text-slate);
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.role-btn {
+    display: block;
+    padding: 18px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+}
+
+.role-farmer .role-btn {
+    background: #10b981;
+    color: white;
+}
+
+.role-buyer .role-btn {
+    background: #3b82f6;
+    color: white;
+}
+
+.role-admin .role-btn {
+    background: #ef4444;
+    color: white;
+}
+
+.role-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.landing-footer {
+    padding: 80px 20px;
+    text-align: center;
+    background: #0f172a;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.landing-footer p {
+    font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-content {
+        padding: 30px 20px;
+        border-radius: 20px;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .section-title h2 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Uiverse Premium Button Styles - Adapted for Role Roles */
+.uiver-btn-premium {
+    --primary: #10b981;
+    --neutral-1: #ffffff;
+    --neutral-2: #f3f4f6;
+    --radius: 14px;
+
+    cursor: pointer;
+    border-radius: var(--radius);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    border: none;
+    box-shadow: 0 0.5px 0.5px 1px rgba(255, 255, 255, 0.2),
+        0 10px 20px rgba(0, 0, 0, 0.05), 0 4px 5px 0px rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+    min-width: 220px;
+    padding: 15px;
+    height: 60px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none !important;
+    color: var(--text-dark) !important;
+}
+
+.uiver-btn-premium.role-farmer {
+    --primary: #10b981;
+}
+
+.uiver-btn-premium.role-buyer {
+    --primary: #3b82f6;
+}
+
+.uiver-btn-premium.role-admin {
+    --primary: #ef4444;
+}
+
+.uiver-btn-premium:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.3),
+        0 15px 30px rgba(0, 0, 0, 0.1), 0 10px 3px -3px rgba(0, 0, 0, 0.02);
+}
+
+.uiver-btn-premium:active {
+    transform: scale(0.98);
+}
+
+.uiver-btn-premium::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    border: 2px solid transparent;
+    background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15)) border-box;
+    z-index: 0;
+    transition: all 0.4s ease;
+}
+
+.uiver-btn-premium:hover::after {
+    transform: scale(1.05, 1.1);
+    box-shadow: inset 0 -1px 3px 0 rgba(255, 255, 255, 1);
+}
+
+.uiver-btn-premium::before {
+    content: "";
+    inset: 5px;
+    position: absolute;
+    background: linear-gradient(to top, var(--neutral-1), var(--neutral-2));
+    border-radius: 12px;
+    filter: blur(0.5px);
+    z-index: 2;
+}
+
+.btn-state {
+    padding-left: 35px;
+    z-index: 3;
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-state .icon {
+    position: absolute;
+    left: -5px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    transform: scale(1.25);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.btn-state p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    color: var(--text-dark);
+}
+
+.btn-state p span {
+    display: block;
+    opacity: 0;
+    animation: slideDownCustom 0.8s ease forwards calc(var(--i) * 0.03s);
+}
+
+.uiver-btn-premium:hover p span {
+    opacity: 1;
+    animation: waveCustom 0.5s ease forwards calc(var(--i) * 0.02s);
+}
+
+@keyframes waveCustom {
+    30% {
+        transform: translateY(4px);
+    }
+
+    50% {
+        transform: translateY(-3px);
+        color: var(--primary);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDownCustom {
+    0% {
+        opacity: 0;
+        transform: translateY(-15px);
+        filter: blur(5px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+.btn-outline {
+    position: absolute;
+    border-radius: inherit;
+    overflow: hidden;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    inset: -2px;
+}
+
+.btn-outline::before {
+    content: "";
+    position: absolute;
+    inset: -100%;
+    background: conic-gradient(from 180deg, transparent 60%, var(--primary) 80%, transparent 100%);
+    animation: spinCustom 2s linear infinite;
+}
+
+@keyframes spinCustom {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.uiver-btn-premium:hover .btn-outline {
+    opacity: 1;
+}
+
+.uiver-btn-premium:hover .btn-state .icon {
+    transform: rotate(15deg) scale(1.4);
+}

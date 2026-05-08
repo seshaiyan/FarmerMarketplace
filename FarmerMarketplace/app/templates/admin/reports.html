@@ -1,0 +1,932 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #10b981;
+        --secondary: #6366f1;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --background: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+    }
+
+    .reports-container {
+        padding: 24px;
+        /* Reduced from 40px */
+        background: var(--background);
+        min-height: calc(100vh - 80px);
+    }
+
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        /* Reduced from 30px */
+    }
+
+    .report-title h1 {
+        font-size: 1.5rem;
+        /* Reduced from 1.875rem */
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 2px;
+        letter-spacing: -0.025em;
+    }
+
+    .report-title p {
+        color: var(--text-muted);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-export {
+        padding: 8px 16px;
+        /* Reduced padding */
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: var(--text-main);
+        text-decoration: none;
+    }
+
+    .btn-export:hover {
+        background: #f1f5f9;
+        transform: translateY(-2px);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        /* Reduced min-width */
+        gap: 16px;
+        /* Reduced gap */
+        margin-bottom: 24px;
+        /* Reduced margin */
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        padding: 20px;
+        /* Reduced padding */
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-icon {
+        width: 48px;
+        /* Reduced size */
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .icon-revenue {
+        background: #ecfdf5;
+        color: #10b981;
+    }
+
+    .icon-transactions {
+        background: #eef2ff;
+        color: #6366f1;
+    }
+
+    .icon-products {
+        background: #fffbeb;
+        color: #f59e0b;
+    }
+
+    .icon-users {
+        background: #fdf2f8;
+        color: #ec4899;
+    }
+
+    .stat-info h3 {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+    }
+
+    .stat-info .value {
+        font-size: 1.25rem;
+        /* Reduced font size */
+        font-weight: 800;
+        color: var(--text-main);
+    }
+
+    /* Charts Row */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        /* Reduced gap */
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 1024px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-card {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        height: 320px;
+        /* Fixed height container */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: var(--text-main);
+    }
+
+    .chart-container {
+        flex: 1;
+        position: relative;
+        min-height: 0;
+        /* Important for flex child */
+    }
+
+    /* Activity Table */
+    .table-container {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        max-height: 400px;
+        /* Limit height */
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .table-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .table-scroll {
+        overflow-y: auto;
+        /* Custom Scrollbar */
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f1f5f9;
+        padding-right: 4px;
+    }
+
+    .table-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .table-scroll::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 6px;
+        /* Reduced spacing */
+    }
+
+    .custom-table th {
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.8rem;
+        padding: 10px 16px;
+        text-align: left;
+        position: sticky;
+        top: 0;
+        background: var(--card-bg);
+        z-index: 10;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .custom-table td {
+        background: #f8fafc;
+        padding: 12px 16px;
+        /* Reduced padding */
+        color: var(--text-main);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .custom-table td:first-child {
+        border-radius: 8px 0 0 8px;
+    }
+
+    .custom-table td:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+
+    .back-btn {
+        margin-top: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+
+    .back-btn:hover {
+        color: var(--primary);
+    }
+</style>
+
+<div class="reports-container">
+    <div class="report-header">
+        <div class="report-title">
+            <h1>Marketplace Analytics</h1>
+            <p>A comprehensive summary of marketplace activity and revenue trends.</p>
+        </div>
+        <div class="header-actions">
+            <a href="#" class="btn-export" onclick="window.print()"><i class="fas fa-file-pdf"></i> PDF</a>
+            <a href="#" class="btn-export"><i class="fas fa-file-csv"></i> CSV</a>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon icon-revenue"><i class="fas fa-wallet"></i></div>
+            <div class="stat-info">
+                <h3>Total Revenue</h3>
+                <div class="value">₹{{ "{:,.2f}".format(total_revenue) }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-transactions"><i class="fas fa-shopping-cart"></i></div>
+            <div class="stat-info">
+                <h3>Transactions</h3>
+                <div class="value">{{ total_transactions }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-products"><i class="fas fa-box"></i></div>
+            <div class="stat-info">
+                <h3>Total Products</h3>
+                <div class="value">{{ total_products }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-users"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <h3>Active Users</h3>
+                <div class="value">{{ total_users }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Revenue Trend (Last 7 Days)</h3>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>User Distribution</h3>
+            <div class="chart-container">
+                <canvas id="userChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Latest Transactions</h3>
+        </div>
+        <div class="table-scroll">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>ORDER ID</th>
+                        <th>PRODUCT</th>
+                        <th>BUYER</th>
+                        <th>FARMER</th>
+                        <th>AMOUNT</th>
+                        <th>DATE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in recent_transactions %}
+                    <tr>
+                        <td>#{{ tx.id }}</td>
+                        <td>{{ tx.product.name }}</td>
+                        <td>{{ tx.buyer.username }}</td>
+                        <td>{{ tx.farmer.username }}</td>
+                        <td class="fw-bold">₹{{ "{:,.2f}".format(tx.total_amount) }}</td>
+                        <td>{{ tx.timestamp.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No recent transactions found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="{{ url_for('admin.dashboard') }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Safe data parsing
+        const labels = {{ labels| tojson | safe
+    }} || [];
+    const revenueData = {{ revenue_trend| tojson | safe }} || [];
+    const farmersCount = {{ farmers_count|default (0) }};
+    const buyersCount = {{ buyers_count|default (0) }};
+
+    // Revenue Trend Chart
+    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctxRevenue, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: revenueData,
+                borderColor: '#10b981',
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+                    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+                    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+                    return gradient;
+                },
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#1e293b',
+                    bodyColor: '#1e293b',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: function (context) {
+                            return '₹ ' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.03)',
+                        borderDash: [5, 5]
+                    },
+                    ticks: {
+                        font: { size: 10 },
+                        color: '#94a3b8'
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 10 },
+                        color: '#94a3b8'
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+
+    // User Distribution Chart
+    const ctxUser = document.getElementById('userChart').getContext('2d');
+    const totalUsers = farmersCount + buyersCount;
+
+    // Handle empty state if no users
+    let userData = [farmersCount, buyersCount];
+    let userColors = ['#10b981', '#6366f1'];
+    let userLabels = ['Farmers', 'Buyers'];
+
+    if (totalUsers === 0) {
+        userData = [1]; // Dummy data
+        userColors = ['#f1f5f9'];
+        userLabels = ['No Users'];
+    }
+
+    new Chart(ctxUser, {
+        type: 'doughnut',
+        data: {
+            labels: userLabels,
+            datasets: [{
+                data: userData,
+                backgroundColor: userColors,
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: { size: 11, weight: '600' },
+                        color: '#64748b'
+                    }
+                },
+                tooltip: {
+                    enabled: totalUsers > 0, // Disable tooltip if no users
+                    callbacks: {
+                        label: function (context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const percentage = totalUsers > 0 ? Math.round((value / totalUsers) * 100) + '%' : '0%';
+                            return `${label}: ${value} (${percentage})`;
+                        }
+                    }
+                }
+            },
+            cutout: '75%'
+        }
+    });
+    });
+</script>
+{% endblock %}
+--secondary: #6366f1;
+--warning: #f59e0b;
+--danger: #ef4444;
+--background: #f8fafc;
+--card-bg: #ffffff;
+--text-main: #1e293b;
+--text-muted: #64748b;
+}
+
+.reports-container {
+padding: 40px;
+background: var(--background);
+min-height: calc(100vh - 80px);
+}
+
+.report-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 30px;
+}
+
+.report-title h1 {
+font-size: 1.875rem;
+font-weight: 800;
+color: var(--text-main);
+margin-bottom: 4px;
+letter-spacing: -0.025em;
+}
+
+.report-title p {
+color: var(--text-muted);
+font-weight: 500;
+}
+
+.header-actions {
+display: flex;
+gap: 12px;
+}
+
+.btn-export {
+padding: 10px 20px;
+border-radius: 12px;
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 8px;
+transition: all 0.2s;
+border: 1px solid #e2e8f0;
+background: white;
+color: var(--text-main);
+text-decoration: none;
+}
+
+.btn-export:hover {
+background: #f1f5f9;
+transform: translateY(-2px);
+}
+
+/* Stats Grid */
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+gap: 24px;
+margin-bottom: 32px;
+}
+
+.stat-card {
+background: var(--card-bg);
+padding: 24px;
+border-radius: 20px;
+border: 1px solid rgba(0, 0, 0, 0.05);
+display: flex;
+align-items: center;
+gap: 20px;
+transition: transform 0.3s;
+}
+
+.stat-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+width: 60px;
+height: 60px;
+border-radius: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+}
+
+.icon-revenue {
+background: #ecfdf5;
+color: #10b981;
+}
+
+.icon-transactions {
+background: #eef2ff;
+color: #6366f1;
+}
+
+.icon-products {
+background: #fffbeb;
+color: #f59e0b;
+}
+
+.icon-users {
+background: #fdf2f8;
+color: #ec4899;
+}
+
+.stat-info h3 {
+color: var(--text-muted);
+font-size: 0.875rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+margin-bottom: 4px;
+}
+
+.stat-info .value {
+font-size: 1.5rem;
+font-weight: 800;
+color: var(--text-main);
+}
+
+/* Charts Row */
+.charts-grid {
+display: grid;
+grid-template-columns: 2fr 1fr;
+gap: 24px;
+margin-bottom: 32px;
+}
+
+@media (max-width: 1024px) {
+.charts-grid {
+grid-template-columns: 1fr;
+}
+}
+
+.chart-card {
+background: var(--card-bg);
+padding: 24px;
+border-radius: 24px;
+border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.chart-card h3 {
+font-size: 1.125rem;
+font-weight: 700;
+margin-bottom: 24px;
+color: var(--text-main);
+}
+
+/* Activity Table */
+.table-container {
+background: var(--card-bg);
+border-radius: 24px;
+border: 1px solid rgba(0, 0, 0, 0.05);
+padding: 24px;
+overflow: hidden;
+}
+
+.table-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+
+.table-header h3 {
+font-size: 1.25rem;
+font-weight: 700;
+color: var(--text-main);
+}
+
+.custom-table {
+width: 100%;
+border-collapse: separate;
+border-spacing: 0 8px;
+}
+
+.custom-table th {
+color: var(--text-muted);
+font-weight: 600;
+font-size: 0.875rem;
+padding: 12px 16px;
+text-align: left;
+}
+
+.custom-table tr {
+transition: all 0.2s;
+}
+
+.custom-table td {
+background: #f8fafc;
+padding: 16px;
+color: var(--text-main);
+font-weight: 500;
+}
+
+.custom-table td:first-child {
+border-radius: 12px 0 0 12px;
+}
+
+.custom-table td:last-child {
+border-radius: 0 12px 12px 0;
+}
+
+.status-badge {
+padding: 4px 12px;
+border-radius: 8px;
+font-size: 0.75rem;
+font-weight: 700;
+}
+
+.status-paid {
+background: #dcfce7;
+color: #166534;
+}
+
+.back-btn {
+margin-top: 30px;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+color: var(--text-muted);
+text-decoration: none;
+font-weight: 600;
+transition: color 0.2s;
+}
+
+.back-btn:hover {
+color: var(--primary);
+}
+</style>
+
+<div class="reports-container">
+    <div class="report-header">
+        <div class="report-title">
+            <h1>Marketplace Analytics</h1>
+            <p>A comprehensive summary of marketplace activity and revenue trends.</p>
+        </div>
+        <div class="header-actions">
+            <a href="#" class="btn-export" onclick="window.print()"><i class="fas fa-file-pdf"></i> Export PDF</a>
+            <a href="#" class="btn-export"><i class="fas fa-file-csv"></i> Export CSV</a>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon icon-revenue"><i class="fas fa-wallet"></i></div>
+            <div class="stat-info">
+                <h3>Total Revenue</h3>
+                <div class="value">₹{{ "{:,.2f}".format(total_revenue) }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-transactions"><i class="fas fa-shopping-cart"></i></div>
+            <div class="stat-info">
+                <h3>Transactions</h3>
+                <div class="value">{{ total_transactions }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-products"><i class="fas fa-box"></i></div>
+            <div class="stat-info">
+                <h3>Total Products</h3>
+                <div class="value">{{ total_products }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-users"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <h3>Active Users</h3>
+                <div class="value">{{ total_users }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Revenue Trend (Last 7 Days)</h3>
+            <canvas id="revenueChart" style="height: 300px;"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>User Distribution</h3>
+            <canvas id="userChart" style="height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Latest Transactions</h3>
+        </div>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>ORDER ID</th>
+                    <th>PRODUCT</th>
+                    <th>BUYER</th>
+                    <th>FARMER</th>
+                    <th>AMOUNT</th>
+                    <th>DATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in recent_transactions %}
+                <tr>
+                    <td>#{{ tx.id }}</td>
+                    <td>{{ tx.product.name }}</td>
+                    <td>{{ tx.buyer.username }}</td>
+                    <td>{{ tx.farmer.username }}</td>
+                    <td class="fw-bold">₹{{ "{:,.2f}".format(tx.total_amount) }}</td>
+                    <td>{{ tx.timestamp.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="{{ url_for('admin.dashboard') }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Revenue Trend Chart
+    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctxRevenue, {
+        type: 'line',
+        data: {
+            labels: {{ labels| tojson }},
+        datasets: [{
+            label: 'Revenue (₹)',
+            data: {{ revenue_trend| tojson }},
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#fff',
+        pointBorderWidth: 2
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    }
+    });
+
+    // User Distribution Chart
+    const ctxUser = document.getElementById('userChart').getContext('2d');
+    new Chart(ctxUser, {
+        type: 'doughnut',
+        data: {
+            labels: ['Farmers', 'Buyers'],
+            datasets: [{
+                data: [{{ farmers_count }}, {{ buyers_count }}],
+        backgroundColor: ['#10b981', '#6366f1'],
+        borderWidth: 0,
+        hoverOffset: 10
+    }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: { weight: '600' }
+                }
+            }
+        },
+        cutout: '70%'
+    }
+    });
+</script>
+{% endblock %}

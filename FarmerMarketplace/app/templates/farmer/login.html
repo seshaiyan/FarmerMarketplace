@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="login-wrapper theme-farmer">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo-square">
+                <i class="fas fa-tractor"></i>
+            </div>
+            <h2>Farmer Zone</h2>
+            <div class="portal-label">Growers Login</div>
+        </div>
+
+        <div class="auth-body">
+            <form method="POST">
+                <div class="input-group">
+                    <label>Username</label>
+                    <div class="field-wrapper">
+                        <div class="field-icon"><i class="fas fa-user-tag"></i></div>
+                        <input type="text" name="username" placeholder="Enter farmer ID" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="field-wrapper">
+                        <div class="field-icon"><i class="fas fa-key"></i></div>
+                        <input type="password" name="password" placeholder="Enter password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Login to Farm</button>
+            </form>
+
+            <div class="auth-footer">
+                New Farmer? <a href="{{ url_for('auth.register') }}">Register Here</a>
+            </div>
+            <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

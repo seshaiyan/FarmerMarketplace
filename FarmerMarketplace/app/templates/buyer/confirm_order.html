@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_dashboard.css') }}">
+
+<div
+    style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: #f3f4f6; padding: 20px;">
+    <div class="card"
+        style="width: 100%; max-width: 500px; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: none; background: white;">
+
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div
+                style="width: 60px; height: 60px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px;">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <h2 style="margin: 0; color: #1e293b; font-size: 1.75rem;">Confirm Your Order</h2>
+            <p style="margin: 5px 0 0; color: #64748b;">Please review your purchase details</p>
+        </div>
+
+        <!-- Order Summary Detail -->
+        <div
+            style="background: #f8fafc; border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9;">
+                <span style="color: #64748b; font-weight: 500;">Product</span>
+                <span style="font-weight: 700; color: #0f172a;">{{ product.name }}</span>
+            </div>
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9;">
+                <span style="color: #64748b; font-weight: 500;">Quantity</span>
+                <span style="font-weight: 700; color: #0f172a;">{{ quantity }} kg</span>
+            </div>
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9;">
+                <span style="color: #64748b; font-weight: 500;">Price per kg</span>
+                <span style="font-weight: 700; color: #0f172a;">₹{{ "%.2f"|format(price) }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <span style="color: #64748b; font-size: 1.1rem; font-weight: 600;">Total Amount</span>
+                <span style="font-size: 1.5rem; font-weight: 800; color: #10b981;">₹{{ "%.2f"|format(total_amount)
+                    }}</span>
+            </div>
+        </div>
+
+        <div
+            style="background: #eff6ff; border-radius: 12px; padding: 15px; margin-bottom: 30px; border: 1px solid #dbeafe;">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <i class="fas fa-info-circle" style="color: #3b82f6; margin-top: 3px;"></i>
+                <p style="margin: 0; font-size: 0.9rem; color: #1e40af; line-height: 1.5;">
+                    By clicking "Proceed to Payment", you agree to purchase this item from <strong>{{ farmer.username
+                        }}</strong>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Confirm Action -->
+        <form action="{{ url_for('buyer.process_payment') }}" method="POST">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="quantity" value="{{ quantity }}">
+            <input type="hidden" name="price" value="{{ price }}">
+            <input type="hidden" name="total_amount" value="{{ total_amount }}">
+            {% if offer_id %}<input type="hidden" name="offer_id" value="{{ offer_id }}">{% endif %}
+
+            <button type="submit"
+                style="width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">
+                <span>Proceed to Payment</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <a href="{{ url_for('buyer.marketplace') }}"
+            style="display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none; font-weight: 500; font-size: 0.95rem;">
+            <i class="fas fa-times" style="margin-right: 5px;"></i> Cancel and Go Back
+        </a>
+    </div>
+</div>
+{% endblock %}

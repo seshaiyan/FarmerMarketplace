@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="login-wrapper theme-admin">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo-square">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h2>Admin Portal</h2>
+            <div class="portal-label">Secure Login</div>
+        </div>
+
+        <div class="auth-body">
+            <form method="POST">
+                <div class="input-group">
+                    <label>Username</label>
+                    <div class="field-wrapper">
+                        <div class="field-icon"><i class="fas fa-user"></i></div>
+                        <input type="text" name="username" placeholder="Enter admin username" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="field-wrapper">
+                        <div class="field-icon"><i class="fas fa-lock"></i></div>
+                        <input type="password" name="password" placeholder="Enter password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
+
+            <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

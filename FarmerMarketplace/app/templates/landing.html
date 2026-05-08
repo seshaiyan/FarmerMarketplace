@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>Empowering the Roots,<br>Feeding the Future.</h1>
+        <p>The next-generation marketplace connecting local farmers directly with buyers through AI-driven insights and
+            secure, transparent transactions.</p>
+        <div class="cta-buttons">
+            <a href="#roles" class="btn-primary">Get Started <i class="fas fa-chevron-right"></i></a>
+            <a href="#features" class="btn-secondary">Explore Features</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <div class="section-title">
+        <h2>Modern Tools for Modern Farming</h2>
+        <p>Bridging the gap between the field and the table with technology.</p>
+    </div>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <h3>Fair Pricing</h3>
+            <p>Farmers set their own prices. Buyers get market-best rates directly from the source.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-magic"></i></div>
+            <h3>AI Insights</h3>
+            <p>Smart tools for price prediction and crop disease detection to help farmers succeed.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>Secure Platform</h3>
+            <p>Verified users and transparent transactions ensure a safe marketplace for all.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Roles Section -->
+<section id="roles" class="roles-section">
+    <div class="section-title">
+        <h2>Choose Your Role</h2>
+        <p>Join our community today.</p>
+    </div>
+    <div class="role-cards-container">
+        <!-- Farmer Card -->
+        <div class="animated-role-card role-farmer">
+            <div class="role-icon-wrapper">
+                <i class="fas fa-tractor"></i>
+            </div>
+            <h3>I am a Farmer</h3>
+            <p>List your harvest, manage sales, and access AI tools for better yields.</p>
+            <a href="{{ url_for('farmer.login') }}" class="uiver-btn-premium role-farmer">
+                <div class="btn-outline"></div>
+                <div class="btn-state">
+                    <div class="icon"><i class="fas fa-tractor"></i></div>
+                    <p>
+                        <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">g</span><span
+                            style="--i:3">i</span><span style="--i:4">n</span>
+                        <span style="--i:5">&nbsp;</span>
+                        <span style="--i:6">F</span><span style="--i:7">a</span><span style="--i:8">r</span><span
+                            style="--i:9">m</span><span style="--i:10">e</span><span style="--i:11">r</span>
+                    </p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Buyer Card -->
+        <div class="animated-role-card role-buyer">
+            <div class="role-icon-wrapper">
+                <i class="fas fa-shopping-basket"></i>
+            </div>
+            <h3>I am a Buyer</h3>
+            <p>Discover fresh local produce and make offers directly to farmers.</p>
+            <a href="{{ url_for('buyer.login') }}" class="uiver-btn-premium role-buyer">
+                <div class="btn-outline"></div>
+                <div class="btn-state">
+                    <div class="icon"><i class="fas fa-shopping-basket"></i></div>
+                    <p>
+                        <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">g</span><span
+                            style="--i:3">i</span><span style="--i:4">n</span>
+                        <span style="--i:5">&nbsp;</span>
+                        <span style="--i:6">B</span><span style="--i:7">u</span><span style="--i:8">y</span><span
+                            style="--i:9">e</span><span style="--i:10">r</span>
+                    </p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Admin Card -->
+        <div class="animated-role-card role-admin">
+            <div class="role-icon-wrapper">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h3>Admin Access</h3>
+            <p>Platform management, user verification, and transaction oversight.</p>
+            <a href="{{ url_for('admin.login') }}" class="uiver-btn-premium role-admin">
+                <div class="btn-outline"></div>
+                <div class="btn-state">
+                    <div class="icon"><i class="fas fa-user-shield"></i></div>
+                    <p>
+                        <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">g</span><span
+                            style="--i:3">i</span><span style="--i:4">n</span>
+                        <span style="--i:5">&nbsp;</span>
+                        <span style="--i:6">A</span><span style="--i:7">d</span><span style="--i:8">m</span><span
+                            style="--i:9">i</span><span style="--i:10">n</span>
+                    </p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer class="landing-footer">
+    <p>&copy; 2025 FARMER 2 BUYER. All rights reserved.</p>
+</footer>
+
+{% endblock %}

@@ -1,0 +1,4 @@
+[2026-02-16 22:01:53] To: +919876543210 | Message: Welcome to FarmerMarketplace, TestUser! Your registration as farmer is successful.
+[2026-02-16 22:01:53] To: +919988776655 | Message: Order Confirmed! You purchased 50kg of Wheat for Rs.1250. Transaction ID: 101.
+[2026-02-16 22:01:53] To: +919123456789 | Message: Great News! You sold 50kg of Wheat for Rs.1250. Buyer ID: 5.
+[2026-02-16 22:01:53] To: +919123456789 | Message: High Alert: Market price for Wheat is expected to surge by 15.0%! Consider holding for maximum profit.

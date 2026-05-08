@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_dashboard.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="farmer-sidebar">
+        <div class="brand-section">
+            <i class="fas fa-tractor"></i> FARMER 2 BUYER
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{{ url_for('farmer.dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('farmer.my_products') }}" class="menu-item">
+                <i class="fas fa-box"></i> My Products
+            </a>
+            <a href="{{ url_for('farmer.analytics') }}" class="menu-item active">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+            <a href="{{ url_for('farmer.history') }}" class="menu-item">
+                <i class="fas fa-history"></i> History
+            </a>
+            <a href="{{ url_for('farmer.offers') }}" class="menu-item">
+                <i class="fas fa-bell"></i> Offers
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-area">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="page-title">Income Analytics</div>
+
+            <div class="user-snippet">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">{{
+                        session['username'] }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Farmer</div>
+                </div>
+                <div class="user-avatar-circle">
+                    {{ session['username'][0]|upper }}
+                </div>
+                <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 5px;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Content Padding -->
+        <div class="content-pad">
+            <div class="card"
+                style="padding: 20px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; border-radius: 12px;">
+                <div
+                    style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e5e7eb;">
+                    <form action="{{ url_for('farmer.analytics') }}" method="GET"
+                        style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; align-items: flex-end;">
+
+                        <!-- Year Filter -->
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <label for="year"
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Year</label>
+                            <select name="year" id="year" onchange="this.form.submit()"
+                                style="padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; min-width: 120px; outline: none; background: white;">
+                                <option value="all" {% if sel_year=='all' %}selected{% endif %}>All Years</option>
+                                {% for y in years %}
+                                <option value="{{ y }}" {% if sel_year==y|string %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Month Filter -->
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <label for="month"
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Month</label>
+                            <select name="month" id="month" onchange="this.form.submit()"
+                                style="padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; min-width: 140px; outline: none; background: white;">
+                                <option value="all" {% if sel_month=='all' %}selected{% endif %}>All Months</option>
+                                <option value="01" {% if sel_month=='01' %}selected{% endif %}>January</option>
+                                <option value="02" {% if sel_month=='02' %}selected{% endif %}>February</option>
+                                <option value="03" {% if sel_month=='03' %}selected{% endif %}>March</option>
+                                <option value="04" {% if sel_month=='04' %}selected{% endif %}>April</option>
+                                <option value="05" {% if sel_month=='05' %}selected{% endif %}>May</option>
+                                <option value="06" {% if sel_month=='06' %}selected{% endif %}>June</option>
+                                <option value="07" {% if sel_month=='07' %}selected{% endif %}>July</option>
+                                <option value="08" {% if sel_month=='08' %}selected{% endif %}>August</option>
+                                <option value="09" {% if sel_month=='09' %}selected{% endif %}>September</option>
+                                <option value="10" {% if sel_month=='10' %}selected{% endif %}>October</option>
+                                <option value="11" {% if sel_month=='11' %}selected{% endif %}>November</option>
+                                <option value="12" {% if sel_month=='12' %}selected{% endif %}>December</option>
+                            </select>
+                        </div>
+
+                        <!-- Crop Filter -->
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <label for="crop"
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Crop</label>
+                            <select name="crop" id="crop" onchange="this.form.submit()"
+                                style="padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; min-width: 140px; outline: none; background: white;">
+                                <option value="all" {% if sel_crop=='all' %}selected{% endif %}>All Crops</option>
+                                {% for c in crops %}
+                                <option value="{{ c }}" {% if sel_crop==c %}selected{% endif %}>{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h3
+                        style="margin: 0; color: var(--text-secondary); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Total Revenue</h3>
+                    <p style="font-size: 3rem; font-weight: 700; color: var(--farmer-dark); margin: 5px 0;">₹{{
+                        total_income }}</p>
+                </div>
+
+                <div style="background: white; border-radius: 8px; padding: 10px;">
+                    <canvas id="incomeChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <script>
+                const ctx = document.getElementById('incomeChart').getContext('2d');
+                const salesData = {{ sales_data | tojson }};
+                const chartType = '{{ chart_type }}'; // 'bar' or 'line'
+
+                // Visual Config based on chart type
+                const bgColor = chartType === 'line' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.6)'; // emerald green
+                const borderColor = '#10b981';
+                const fill = chartType === 'line';
+
+                new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: Object.keys(salesData),
+                        datasets: [{
+                            label: 'Income (₹)',
+                            data: Object.values(salesData),
+                            backgroundColor: bgColor,
+                            borderColor: borderColor,
+                            borderWidth: 2,
+                            fill: fill,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: borderColor,
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { borderDash: [5, 5], color: '#f3f4f6' },
+                                ticks: { font: { family: 'Inter' } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </main>
+</div>
+{% endblock %}

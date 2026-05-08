@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Google Fonts & Animations -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<style>
+    :root {
+        --ai-primary: #10b981;
+        --ai-secondary: #6366f1;
+        --ai-accent: #f59e0b;
+        --ai-danger: #f43f5e;
+        --ai-dark: #0f172a;
+        --ai-glass: rgba(255, 255, 255, 0.03);
+        --ai-glass-border: rgba(255, 255, 255, 0.1);
+        --ai-text: #f8fafc;
+        --ai-text-dim: #94a3b8;
+    }
+
+    body {
+        background: #020617;
+        font-family: 'Outfit', sans-serif;
+        color: var(--ai-text);
+        overflow-x: hidden;
+    }
+
+    /* Shared Mesh Background */
+    .mesh-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background:
+            radial-gradient(at 0% 0%, hsla(161, 84%, 39%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(242, 81%, 67%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, hsla(41, 91%, 50%, 0.05) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, hsla(161, 84%, 39%, 0.05) 0px, transparent 50%);
+        filter: blur(80px);
+    }
+
+    .notifications-container {
+        padding: 80px 20px;
+        min-height: calc(100vh - 80px);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .page-header h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+        letter-spacing: -0.05em;
+    }
+
+    /* Alert Cards */
+    .alert-card {
+        background: var(--ai-glass);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ai-glass-border);
+        border-radius: 24px;
+        padding: 24px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideInRight 0.5s ease-out;
+    }
+
+    .alert-card:hover {
+        transform: translateX(8px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .alert-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(16, 185, 129, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: var(--ai-primary);
+        margin-right: 20px;
+    }
+
+    .alert-content h4 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        margin-bottom: 4px;
+        font-size: 1.1rem;
+    }
+
+    .alert-content p {
+        color: var(--ai-text-dim);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--ai-accent);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-pulse {
+        width: 8px;
+        height: 8px;
+        background: var(--ai-accent);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+        }
+    }
+
+    .btn-ai-verify {
+        background: linear-gradient(135deg, var(--ai-primary) 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-ai-verify:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 40px;
+        background: var(--ai-glass);
+        border-radius: 32px;
+        border: 1px dashed var(--ai-glass-border);
+    }
+
+    .empty-visual {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 24px;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .empty-visual i {
+        font-size: 4rem;
+        color: var(--ai-primary);
+        filter: drop-shadow(0 0 10px var(--ai-primary));
+    }
+
+    .btn-back {
+        margin-top: 40px;
+        color: var(--ai-text-dim);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.2s;
+    }
+
+    .btn-back:hover {
+        color: white;
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+</style>
+
+<div class="mesh-bg"></div>
+
+<div class="notifications-container animate__animated animate__fadeIn">
+    <div class="page-header">
+        <h1>System Intelligence</h1>
+        <p style="color:var(--ai-text-dim);">Real-time marketplace activity and entity verifications</p>
+    </div>
+
+    <div class="intelligence-feed">
+        {% if pending_farmers %}
+        <div class="section-title mb-4"
+            style="display:flex; align-items:center; gap:12px; font-family:'Space Grotesk'; font-weight:700;">
+            <i class="fas fa-microchip" style="color:var(--ai-primary);"></i>
+            <span>Queue: Pending Farmer Verifications</span>
+        </div>
+
+        {% for farmer in pending_farmers %}
+        <div class="alert-card">
+            <div style="display:flex; align-items:center;">
+                <div class="alert-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="alert-content">
+                    <h4>{{ farmer.username }}</h4>
+                    <p>Origin: {{ farmer.state or 'Unknown Location' }}</p>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:24px;">
+                <div class="status-badge">
+                    <div class="status-pulse"></div>
+                    <span>Awaiting Pulse</span>
+                </div>
+                <a href="{{ url_for('admin.verify_farmer', user_id=farmer.id) }}" class="btn-ai-verify">
+                    Execute Verification
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-visual">
+                <i class="fas fa-shield-check"></i>
+            </div>
+            <h3 style="font-family:'Space Grotesk'; font-weight:700; margin-bottom:12px;">System Integrity Confirmed
+            </h3>
+            <p style="color:var(--ai-text-dim); margin-bottom:24px;">No pending entity pulses detected. All marketplace
+                activity is currently verified.</p>
+            <button id="rescanBtn" onclick="triggerRescan()" class="btn-ai-verify"
+                style="background: rgba(255,255,255,0.05); border: 1px solid var(--ai-glass-border); min-width: 180px;">
+                <i class="fas fa-rotate mr-2" id="rescanIcon"></i> <span id="rescanText">Rescan Network</span>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="text-align: center; margin-top: 60px;">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-ai-verify"
+            style="background: transparent; border: 1px solid var(--ai-primary); color: var(--ai-primary);">
+            <i class="fas fa-arrow-left"></i> Return to Command Center
+        </a>
+    </div>
+</div>
+
+<script>
+    function triggerRescan() {
+        const btn = document.getElementById('rescanBtn');
+        const icon = document.getElementById('rescanIcon');
+        const text = document.getElementById('rescanText');
+
+        btn.disabled = true;
+        icon.classList.add('fa-spin');
+        text.textContent = 'Scanning System...';
+
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+    }
+</script>
+{% endblock %}

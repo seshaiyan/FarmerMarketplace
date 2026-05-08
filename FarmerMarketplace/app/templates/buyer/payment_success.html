@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card"
+    style="max-width: 600px; margin: 50px auto; padding: 40px; text-align: center; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+    <div style="font-size: 80px; color: #27ae60; margin-bottom: 20px;">
+        <i class="fas fa-check-circle"></i>
+    </div>
+
+    <h1 style="color: #2c3e50; margin-bottom: 10px;">Payment Successful!</h1>
+    <p style="color: #7f8c8d; font-size: 1.1em; margin-bottom: 30px;">
+        Your purchase of <strong>{{ transaction.quantity }}kg {{ transaction.product.name if transaction.product else
+            'Product' }}</strong> has been confirmed.
+    </p>
+
+    <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 35px; text-align: left;">
+        <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">Transaction
+            Details</h3>
+        <p style="margin: 10px 0;"><strong>Order ID:</strong> #{{ transaction.id }}</p>
+        <p style="margin: 10px 0;"><strong>Total Amount:</strong> ₹{{ transaction.total_amount }}</p>
+        <p style="margin: 10px 0;"><strong>Date:</strong> {{ transaction.timestamp.strftime('%d %b, %Y %I:%M %p') }}</p>
+    </div>
+
+    <div style="display: flex; gap: 15px; justify-content: center;">
+        <a href="{{ url_for('buyer.download_bill', transaction_id=transaction.id) }}" target="_blank" class="btn"
+            style="background: #27ae60; padding: 12px 25px; font-size: 1em; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-file-invoice"></i> Download Receipt
+        </a>
+
+        <a href="{{ url_for('buyer.dashboard') }}" class="btn"
+            style="background: #3498db; padding: 12px 25px; font-size: 1em;">
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

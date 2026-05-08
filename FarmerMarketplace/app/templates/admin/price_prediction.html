@@ -1,0 +1,691 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Google Fonts for High-End Look -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<style>
+    :root {
+        --ai-primary: #10b981;
+        --ai-secondary: #6366f1;
+        --ai-accent: #f59e0b;
+        --ai-dark: #0f172a;
+        --ai-glass: rgba(255, 255, 255, 0.03);
+        --ai-glass-border: rgba(255, 255, 255, 0.1);
+        --ai-text: #f8fafc;
+        --ai-text-dim: #94a3b8;
+    }
+
+    body {
+        background: #020617;
+        /* Deepest blue */
+        overflow-x: hidden;
+    }
+
+    /* Animated Mesh Background */
+    .mesh-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background:
+            radial-gradient(at 0% 0%, hsla(161, 84%, 39%, 0.15) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(242, 81%, 67%, 0.15) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, hsla(41, 91%, 50%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, hsla(161, 84%, 39%, 0.1) 0px, transparent 50%);
+        filter: blur(80px);
+        animation: meshMove 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes meshMove {
+        0% {
+            transform: scale(1);
+        }
+
+        100% {
+            transform: scale(1.1);
+        }
+    }
+
+    .prediction-container {
+        padding: 60px 40px;
+        font-family: 'Outfit', sans-serif;
+        color: var(--ai-text);
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 48px;
+        text-align: center;
+    }
+
+    .page-header h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+        letter-spacing: -0.05em;
+    }
+
+    .page-header p {
+        color: var(--ai-text-dim);
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+        font-weight: 300;
+    }
+
+    /* Layout */
+    .ai-dashboard-grid {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 32px;
+        align-items: start;
+    }
+
+    @media (max-width: 1200px) {
+        .ai-dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Glass Cards */
+    .glass-panel {
+        background: var(--ai-glass);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ai-glass-border);
+        border-radius: 32px;
+        padding: 40px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .glass-panel:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .config-panel {
+        position: sticky;
+        top: 100px;
+    }
+
+    .config-panel h3 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        color: var(--ai-text-dim);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .ai-select {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 16px 20px;
+        border-radius: 16px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 20px center;
+        background-size: 16px;
+    }
+
+    .ai-select:focus {
+        border-color: var(--ai-primary);
+        background-color: rgba(255, 255, 255, 0.08);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    .btn-ai-engine {
+        width: 100%;
+        background: linear-gradient(135deg, var(--ai-primary) 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-ai-engine::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+        transform: scale(0);
+        transition: transform 0.6s;
+    }
+
+    .btn-ai-engine:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-ai-engine:hover::after {
+        transform: scale(1);
+    }
+
+    .btn-ai-engine:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Results Side */
+    .results-wrapper {
+        min-height: 500px;
+    }
+
+    .empty-state {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--ai-text-dim);
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 32px;
+        padding: 60px;
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        background: linear-gradient(135deg, var(--ai-primary) 0%, var(--ai-secondary) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 24px;
+        opacity: 0.5;
+    }
+
+    .prediction-results {
+        display: none;
+    }
+
+    .prediction-results.active {
+        display: grid;
+        gap: 32px;
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    /* Metrics */
+    .metric-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 12px;
+    }
+
+    .metric-bubble {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 24px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+    }
+
+    .metric-bubble small {
+        color: var(--ai-text-dim);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .metric-bubble span {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--ai-primary);
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Chart Area */
+    .chart-box {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 24px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+    }
+
+    .chart-container {
+        height: 400px;
+        width: 100%;
+    }
+
+    /* Terminal Advisory */
+    .terminal-advisory {
+        background: #000;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #1e293b;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .terminal-advisory::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--ai-primary);
+    }
+
+    .terminal-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .dot-1 {
+        background: #ff5f56;
+    }
+
+    .dot-2 {
+        background: #ffbd2e;
+    }
+
+    .dot-3 {
+        background: #27c93f;
+    }
+
+    .terminal-content h4 {
+        color: var(--ai-primary);
+        font-size: 1rem;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .terminal-content p {
+        color: #e2e8f0;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    /* Spinner */
+    .spinner {
+        display: none;
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--ai-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #1e293b;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #334155;
+    }
+
+    .glow-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, var(--ai-primary), transparent 70%);
+        opacity: 0.03;
+        pointer-events: none;
+    }
+</style>
+
+<div class="mesh-bg"></div>
+
+<div class="prediction-container animate__animated animate__fadeIn">
+    <div class="page-header">
+        <h1>AI Price Predictor</h1>
+        <p>Harnessing specialized XGBoost models to decode complex agricultural market patterns with precision.</p>
+    </div>
+
+    <div class="ai-dashboard-grid">
+        <!-- Configuration Side -->
+        <div class="glass-panel config-panel">
+            <h3><i class="fas fa-sliders" style="color:var(--ai-primary);"></i> Configuration</h3>
+
+            <div class="form-group">
+                <label class="form-label">Target Asset / Crop</label>
+                <select id="cropSelect" class="ai-select">
+                    <option value="Wheat">Wheat</option>
+                    <option value="Rice">Rice</option>
+                    <option value="Corn">Corn</option>
+                    <option value="Tomato">Tomato</option>
+                    <option value="Potato">Potato</option>
+                    <option value="Onion">Onion</option>
+                    <option value="Carrot">Carrot</option>
+                    <option value="Ginger">Ginger</option>
+                    <option value="Garlic">Garlic</option>
+                    <option value="Chilli">Chilli</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Forecast Window</label>
+                <select id="horizonSelect" class="ai-select">
+                    <option value="7">7-Day Prediction</option>
+                    <option value="15">15-Day Strategic</option>
+                    <option value="30">30-Day Outlook</option>
+                </select>
+            </div>
+
+            <button id="predictBtn" class="btn-ai-engine" onclick="runPrediction()">
+                <span class="btn-text">Initialize Prediction Engine</span>
+                <span class="spinner" id="btnSpinner"></span>
+            </button>
+            <div id="errorMsg"
+                style="color:#ef4444; margin-top:15px; font-size: 0.85rem; display:none; text-align: center;"></div>
+        </div>
+
+        <!-- Results Side -->
+        <div class="results-wrapper">
+            <div class="empty-state animate__animated animate__fadeIn" id="predictionPlaceholder">
+                <i class="fas fa-microchip"></i>
+                <h3>Ready for Analysis</h3>
+                <p>Select a crop and window to start the neural forecasting engine.</p>
+            </div>
+
+            <div class="prediction-results" id="predictionResults">
+                <!-- Metrics -->
+                <div class="metric-row">
+                    <div class="metric-bubble">
+                        <small>Engine Confidence</small>
+                        <span style="color:#2dd4bf;">94.2%</span>
+                    </div>
+                    <div class="metric-bubble">
+                        <small>Avg. Price Forecast</small>
+                        <span id="avgPriceDisplay">₹0.00 / kg</span>
+                    </div>
+                    <div class="metric-bubble">
+                        <small>Market Volatility</small>
+                        <span style="color:var(--ai-accent);">Low</span>
+                    </div>
+                </div>
+
+                <!-- Main Analysis Panel -->
+                <div class="glass-panel" style="padding:30px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 id="resultTitle" style="margin:0; font-family:'Space Grotesk'; font-weight:700;">Forecast
+                            Analysis</h3>
+                        <div style="color:var(--ai-text-dim); font-size:0.8rem;">
+                            <i class="fas fa-clock mr-1"></i> Real-time Computed
+                        </div>
+                    </div>
+
+                    <div class="chart-box">
+                        <div class="glow-overlay"></div>
+                        <div class="chart-container">
+                            <canvas id="forecastChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Advisory Terminal -->
+                <div class="terminal-advisory">
+                    <div class="terminal-header">
+                        <div class="terminal-dot dot-1"></div>
+                        <div class="terminal-dot dot-2"></div>
+                        <div class="terminal-dot dot-3"></div>
+                        <span style="color:#475569; font-size:0.75rem; margin-left:10px;">MARKET_ADVISORY_v2.0</span>
+                    </div>
+                    <div class="terminal-content">
+                        <h4 id="advisoryHeading"><i id="advisoryIcon" class="fas fa-terminal"></i> Terminal System</h4>
+                        <p id="advisoryContent">Standby for advisory generation...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; text-align: left;">
+        <a href="{{ url_for('admin.dashboard') }}"
+            style="color:var(--ai-text-dim); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:8px; transition: color 0.2s;"
+            onmouseover="this.style.color='var(--ai-primary)'" onmouseout="this.style.color='var(--ai-text-dim)'">
+            <i class="fas fa-arrow-left"></i> Return to Admin Command Center
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let forecastChart = null;
+
+    async function runPrediction() {
+        const btn = document.getElementById('predictBtn');
+        const btnText = btn.querySelector('.btn-text');
+        const spinner = document.getElementById('btnSpinner');
+        const placeholder = document.getElementById('predictionPlaceholder');
+        const results = document.getElementById('predictionResults');
+        const errorMsg = document.getElementById('errorMsg');
+
+        const crop = document.getElementById('cropSelect').value;
+        const horizon = document.getElementById('horizonSelect').value;
+
+        // Reset UI
+        btn.disabled = true;
+        btnText.style.opacity = '0.5';
+        spinner.style.display = 'block';
+        errorMsg.style.display = 'none';
+
+        try {
+            const response = await fetch('/admin/get_prediction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ crop, timeframe: horizon })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Engine Failure');
+
+            // Switch Views
+            placeholder.style.display = 'none';
+            results.classList.add('active');
+
+            // Update Text
+            document.getElementById('resultTitle').textContent = `Predictive Trend for ${crop}`;
+            document.getElementById('avgPriceDisplay').textContent = `₹${data.avg_price} / kg`;
+            document.getElementById('advisoryContent').textContent = data.advisory;
+
+            // Handle Advisory Styling
+            const advIcon = document.getElementById('advisoryIcon');
+            const advHeading = document.getElementById('advisoryHeading');
+            const terminal = document.querySelector('.terminal-advisory');
+
+            if (data.advisory.includes('surge') || data.advisory.includes('profit')) {
+                terminal.style.borderColor = '#10b981';
+                advHeading.style.color = '#10b981';
+                advIcon.className = 'fas fa-arrow-trend-up';
+                advHeading.textContent = 'Strategic Opportunity Detected';
+            } else if (data.advisory.includes('drop') || data.advisory.includes('urgently')) {
+                terminal.style.borderColor = '#ef4444';
+                advHeading.style.color = '#ef4444';
+                advIcon.className = 'fas fa-triangle-exclamation';
+                advHeading.textContent = 'High Market Risk Alert';
+            } else {
+                terminal.style.borderColor = '#6366f1';
+                advHeading.style.color = '#6366f1';
+                advIcon.className = 'fas fa-shield-halved';
+                advHeading.textContent = 'Market Stability Confirmed';
+            }
+
+            // Update Chart
+            updateChart(data.labels, data.prices);
+
+        } catch (err) {
+            console.error(err);
+            errorMsg.textContent = `SYSTEM_ERROR: ${err.message}`;
+            errorMsg.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btnText.style.opacity = '1';
+            spinner.style.display = 'none';
+        }
+    }
+
+    function updateChart(labels, values) {
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+
+        // Gradient fill
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+        gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+        if (forecastChart) {
+            forecastChart.destroy();
+        }
+
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.font.family = "'Outfit', sans-serif";
+
+        forecastChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Predicted Value (₹ / kg)',
+                    data: values,
+                    borderColor: '#10b981',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#10b981',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: gradient
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 14 },
+                        padding: 16,
+                        borderRadius: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function (context) {
+                                return `₹${context.parsed.y.toFixed(2)} / kg`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { padding: 10 }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: {
+                            padding: 10,
+                            callback: value => '₹' + value
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+                animations: {
+                    y: { duration: 2000, from: 500 }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+flask
+flask-sqlalchemy
+flask-migrate
+requests
+beautifulsoup4
+pillow
+pandas
+numpy
+scikit-learn
+xgboost

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Navbar Modernization */
+        .navbar {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 0 40px;
+            transition: all 0.3s;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-left {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #065f46 !important;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-middle {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-middle a {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-middle a:hover {
+            color: #10b981;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .logout-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        body.with-navbar {
+            padding-top: 80px;
+        }
+
+        body.no-navbar {
+            padding-top: 0;
+        }
+    </style>
+</head>
+
+{% set hide_navbar_endpoints = ['main.landing', 'farmer.login', 'buyer.login', 'admin.login', 'auth.register',
+'auth.login_page'] %}
+
+<body
+    class="{{ 'no-navbar' if (request.endpoint in hide_navbar_endpoints or session.get('role')) else 'with-navbar' }}">
+
+    {% if request.endpoint not in hide_navbar_endpoints and not session.get('role') %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Left: Project Name -->
+            <a href="/" class="nav-left"><i class="fas fa-leaf"></i> FARMER 2 BUYER</a>
+
+            <!-- Middle: Navigation Links -->
+            <div class="nav-middle">
+                {% if session.get('role') == 'farmer' %}
+                <a href="{{ url_for('farmer.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{{ url_for('farmer.analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a>
+                <a href="{{ url_for('farmer.history') }}"><i class="fas fa-history"></i> History</a>
+                <a href="{{ url_for('farmer.offers') }}"><i class="fas fa-bell"></i> Offers</a>
+                {% elif session.get('role') == 'buyer' %}
+                <a href="{{ url_for('buyer.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{{ url_for('buyer.marketplace') }}"><i class="fas fa-store"></i> Marketplace</a>
+                <a href="{{ url_for('buyer.analytics') }}"><i class="fas fa-wallet"></i> Expenses</a>
+                <a href="{{ url_for('buyer.history') }}"><i class="fas fa-history"></i> History</a>
+                <a href="{{ url_for('buyer.offers') }}"><i class="fas fa-hand-holding-usd"></i> Offers</a>
+                {% elif session.get('role') == 'admin' %}
+                <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-user-shield"></i> Admin Dashboard</a>
+                {% else %}
+                <a href="/">Home</a>
+                {% endif %}
+            </div>
+
+            <!-- Right: Profile & Logout -->
+            <div class="nav-right">
+                {% if session.get('user_id') %}
+                <div class="profile-section">
+                    <div class="profile-img"><i class="fas fa-user"></i></div>
+                    <span>{{ session['username'] }}</span>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
+                {% else %}
+                <a href="/" style="color: white; text-decoration: none;">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="main-wrapper" style="width: 100%; min-height: 100vh;">
+        <!-- Flash Messages (Centered) -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div id="flash-container" style="max-width: 1200px; margin: 20px auto; padding: 0 20px;">
+            {% for message in messages %}
+            <div class="alert-box"
+                style="background: #f1c40f; padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; color: #333; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #d4ac0d; animation: slideIn 0.5s ease-out;">
+                <span style="font-weight: 500;">
+                    <i class="fas fa-info-circle" style="margin-right: 10px;"></i>
+                    {{ message }}
+                </span>
+                <button onclick="this.parentElement.remove()"
+                    style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666; padding: 0 5px;">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            // Auto-dismiss flash messages after 5 seconds
+            setTimeout(function () {
+                const flashContainer = document.getElementById('flash-container');
+                if (flashContainer) {
+                    const alerts = flashContainer.getElementsByClassName('alert-box');
+                    for (let alert of alerts) {
+                        alert.style.transition = 'opacity 0.5s ease-out';
+                        alert.style.opacity = '0';
+                        setTimeout(() => alert.remove(), 500);
+                    }
+                }
+            }, 5000);
+        </script>
+
+        <style>
+            @keyframes slideIn {
+                from {
+                    transform: translateY(-20px);
+                    opacity: 0;
+                }
+
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        </style>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+
+</html>

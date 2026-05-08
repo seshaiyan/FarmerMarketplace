@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | FarmerMarketplace</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-leaf"></i> FARMER 2 BUYER
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-category">Main</div>
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-item active">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+
+                <div class="nav-category">Management</div>
+                <a href="{{ url_for('admin.users') }}" class="nav-item">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="{{ url_for('admin.products') }}" class="nav-item">
+                    <i class="fas fa-box-open"></i> Products
+                </a>
+                <a href="{{ url_for('admin.transactions') }}" class="nav-item">
+                    <i class="fas fa-exchange-alt"></i> Transactions
+                </a>
+
+                <div class="nav-category">AI Tools</div>
+                <a href="{{ url_for('admin.price_predictor') }}" class="nav-item">
+                    <i class="fas fa-robot"></i> Price Predictor <span class="ai-badge">AI</span>
+                </a>
+                <a href="{{ url_for('admin.disease_detect') }}" class="nav-item">
+                    <i class="fas fa-bug"></i> Disease Detect <span class="ai-badge">AI</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fas fa-search" style="color: #9ca3af;"></i>
+                    <input type="text" id="dashboardSearch" placeholder="Search transactions or farmers...">
+                </div>
+
+                <div class="header-right">
+                    <a href="{{ url_for('admin.notifications') }}" class="icon-btn"
+                        style="text-decoration: none; position: relative;">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </a>
+                    <a href="{{ url_for('admin.settings') }}" class="icon-btn" style="text-decoration: none;">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                    <div class="user-profile" style="display: flex; align-items: center; gap: 10px;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; font-size: 0.9rem;">{{ session['username'] }}</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">Admin</div>
+                        </div>
+                        <a href="{{ url_for('admin.dashboard') }}" class="user-avatar"
+                            style="background: #4f46e5; color: white; text-decoration: none;">
+                            <i class="fas fa-user-shield"></i>
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 10px;">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div id="flash-container" style="max-width: 1200px; margin: 10px auto; padding: 0 20px;">
+                {% for message in messages %}
+                <div class="alert-box"
+                    style="background: #f1c40f; padding: 12px 20px; border-radius: 8px; margin-bottom: 15px; color: #333; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #d4ac0d; animation: slideIn 0.5s ease-out;">
+                    <span style="font-weight: 500; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle" style="margin-right: 10px;"></i>
+                        {{ message }}
+                    </span>
+                    <button onclick="this.parentElement.remove()"
+                        style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <script>
+                setTimeout(function () {
+                    const flashContainer = document.getElementById('flash-container');
+                    if (flashContainer) {
+                        const alerts = flashContainer.getElementsByClassName('alert-box');
+                        for (let alert of alerts) {
+                            alert.style.transition = 'opacity 0.5s ease-out';
+                            alert.style.opacity = '0';
+                            setTimeout(() => alert.remove(), 500);
+                        }
+                    }
+                }, 5000);
+            </script>
+
+            <style>
+                @keyframes slideIn {
+                    from {
+                        transform: translateY(-10px);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
+            </style>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                <div class="welcome-banner"
+                    style="background: linear-gradient(135deg, #1e293b, #4f46e5); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div>
+                        <h2 style="margin: 0 0 8px 0; color: white;">Welcome back, {{ session['username'] }}! 👋</h2>
+                        <p style="margin: 0; color: #cbd5e1;">Here's what's happening in your marketplace today.</p>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('admin.reports') }}" class="btn-sm"
+                            style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); text-decoration: none; display: inline-block;">
+                            View Reports
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <a href="{{ url_for('admin.transactions') }}" class="stat-card"
+                        style="text-decoration: none; color: inherit; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div class="stat-icon-wrapper">
+                            <div class="uiverse-spinner">
+                                <div class="uiverse-spinnerin"></div>
+                            </div>
+                            <i class="fas fa-chart-line" style="color: #6366f1;"></i>
+                        </div>
+                        <div class="stat-value">₹{{ '{:,.0f}'.format(stats.revenue) }}</div>
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i> 12% vs last month
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('admin.users', role='farmer') }}" class="stat-card"
+                        style="text-decoration: none; color: inherit; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div class="stat-icon-wrapper">
+                            <div class="uiverse-spinner">
+                                <div class="uiverse-spinnerin"></div>
+                            </div>
+                            <i class="fas fa-seedling" style="color: #10b981;"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.farmers }}</div>
+                        <div class="stat-label">Total Farmers</div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i> 4% new this week
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('admin.products') }}" class="stat-card"
+                        style="text-decoration: none; color: inherit; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div class="stat-icon-wrapper">
+                            <div class="uiverse-spinner">
+                                <div class="uiverse-spinnerin"></div>
+                            </div>
+                            <i class="fas fa-store" style="color: #f59e0b;"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.products }}</div>
+                        <div class="stat-label">Active Products</div>
+                    </a>
+
+                    <a href="{{ url_for('admin.users', role='buyer') }}" class="stat-card"
+                        style="text-decoration: none; color: inherit; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div class="stat-icon-wrapper">
+                            <div class="uiverse-spinner">
+                                <div class="uiverse-spinnerin"></div>
+                            </div>
+                            <i class="fas fa-shopping-cart" style="color: #8b5cf6;"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.buyers }}</div>
+                        <div class="stat-label">Active Buyers</div>
+                    </a>
+                </div>
+
+                <div class="grid-2-1">
+                    <!-- Recent Transactions -->
+                    <div class="table-card">
+                        <div class="card-header">
+                            <div class="card-title">Recent Transactions</div>
+                            <a href="{{ url_for('admin.transactions') }}"
+                                style="color: var(--primary-color); font-size: 0.9rem; text-decoration: none;">View
+                                All</a>
+                        </div>
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Buyer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in transactions %}
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div style="display:flex; flex-direction:column;">
+                                                <span style="font-weight: 500;">{{ t.product.name }}</span>
+                                                <span style="font-size: 0.75rem; color: #9ca3af;">#{{ t.id }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ t.buyer.username }}</td>
+                                    <td style="font-weight: 600;">₹{{ t.total_amount }}</td>
+                                    <td>
+                                        <span class="status-badge status-verified">Completed</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pending Verifications -->
+                    <div class="table-card">
+                        <div class="card-header">
+                            <div class="card-title">Pending Approvals</div>
+                            <span
+                                style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">{{
+                                farmers|length }}</span>
+                        </div>
+                        {% if farmers %}
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            {% for farmer in farmers %}
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #f3f4f6;">
+                                <div class="user-cell">
+                                    <div class="user-avatar" style="background: #ffedd5; color: #ea580c;">
+                                        {{ farmer.username[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">{{ farmer.username }}</div>
+                                        <div style="font-size: 0.75rem; color: #9ca3af;">{{ farmer.state }}</div>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('admin.verify_farmer', user_id=farmer.id) }}"
+                                    class="btn-sm btn-success">
+                                    Verify
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div style="text-align: center; color: #9ca3af; padding: 20px;">
+                            <i class="fas fa-check-circle"
+                                style="font-size: 2rem; margin-bottom: 10px; color: #10b981;"></i>
+                            <p>All caught up!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-card">
+                    <div class="card-header">
+                        <div class="card-title">Revenue Overview</div>
+                        <select
+                            style="border: 1px solid rgba(255, 255, 255, 0.1); padding: 4px 8px; border-radius: 6px; outline: none; background: rgba(30, 41, 59, 0.5); color: white;">
+                            <option>This Year</option>
+                            <option>This Month</option>
+                        </select>
+                    </div>
+                    <div style="height: 300px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [12000, 19000, 3000, 5000, 2000, 3000, 15000, 21000, 24000, 23000, 25000, {{ stats.revenue }}],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+                options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+            });
+
+        const searchInput = document.getElementById('dashboardSearch');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function () {
+                let searchValue = this.value.toLowerCase();
+
+                document.querySelectorAll('.custom-table tbody tr').forEach(row => {
+                    let text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchValue) ? '' : 'none';
+                });
+
+                document.querySelectorAll('.table-card:last-child > div > div').forEach(item => {
+                    if (item.classList.contains('user-cell') || item.innerHTML.includes('user-cell')) {
+                        let text = item.textContent.toLowerCase();
+                        let container = item.closest('div[style*="justify-content: space-between"]');
+                        if (container) {
+                            container.style.display = text.includes(searchValue) ? 'flex' : 'none';
+                        }
+                    }
+                });
+            });
+        }
+        });
+    </script>
+
+</body>
+
+</html>

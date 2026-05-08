@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Google Fonts & Animations -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<style>
+    :root {
+        --ai-primary: #10b981;
+        --ai-secondary: #6366f1;
+        --ai-accent: #f59e0b;
+        --ai-danger: #f43f5e;
+        --ai-dark: #0f172a;
+        --ai-glass: rgba(255, 255, 255, 0.03);
+        --ai-glass-border: rgba(255, 255, 255, 0.1);
+        --ai-text: #f8fafc;
+        --ai-text-dim: #94a3b8;
+    }
+
+    body {
+        background: #020617;
+        font-family: 'Outfit', sans-serif;
+        color: var(--ai-text);
+        overflow-x: hidden;
+    }
+
+    /* Shared Mesh Background */
+    .mesh-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background:
+            radial-gradient(at 0% 0%, hsla(161, 84%, 39%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(242, 81%, 67%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, hsla(41, 91%, 50%, 0.05) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, hsla(161, 84%, 39%, 0.05) 0px, transparent 50%);
+        filter: blur(80px);
+    }
+
+    .lab-container {
+        padding: 80px 20px;
+        min-height: calc(100vh - 80px);
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 56px;
+    }
+
+    .page-header h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+        letter-spacing: -0.05em;
+    }
+
+    /* Diagnostic Bay (Main Card) */
+    .diagnostic-bay {
+        background: var(--ai-glass);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--ai-glass-border);
+        border-radius: 32px;
+        padding: 48px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+    }
+
+    @media (max-width: 992px) {
+        .diagnostic-bay {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.01);
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+        border-color: var(--ai-primary);
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .upload-icon {
+        font-size: 4rem;
+        color: var(--ai-primary);
+        margin-bottom: 24px;
+        opacity: 0.6;
+        transition: transform 0.3s;
+    }
+
+    .upload-zone:hover .upload-icon {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    #imagePreview {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: none;
+        z-index: 1;
+        padding: 20px;
+    }
+
+    /* Neural Scan Animation Overlay */
+    .scan-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        background: linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.2) 50%, transparent 100%);
+        background-size: 100% 200px;
+        display: none;
+        pointer-events: none;
+        animation: scanLines 2s linear infinite;
+    }
+
+    @keyframes scanLines {
+        0% {
+            transform: translateY(-100%);
+        }
+
+        100% {
+            transform: translateY(100%);
+        }
+    }
+
+    /* Results Panel */
+    .results-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .intelligence-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 24px;
+    }
+
+    .intelligence-card h5 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        color: var(--ai-primary);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.1em;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+        margin-top: 12px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--ai-primary);
+        width: 0%;
+        transition: width 2s ease-in-out;
+        box-shadow: 0 0 10px var(--ai-primary);
+    }
+
+    .diagnostic-result {
+        display: none;
+        animation: fadeInUp 0.8s forwards;
+    }
+
+    /* Button Styling */
+    .btn-ai-action {
+        background: linear-gradient(135deg, var(--ai-primary) 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .btn-ai-action:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-ai-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-back {
+        margin-top: 40px;
+        color: var(--ai-text-dim);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.2s;
+    }
+
+    .btn-back:hover {
+        color: white;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="mesh-bg"></div>
+
+<div class="lab-container animate__animated animate__fadeIn">
+    <div class="page-header">
+        <h1>AI Diagnostic Lab</h1>
+        <p style="color:var(--ai-text-dim);">Neural scanning and predictive diagnostics for agricultural pathology</p>
+    </div>
+
+    <div class="diagnostic-bay">
+        <!-- Left Side: Upload & Imaging -->
+        <div class="imaging-unit">
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                <div id="dropPrompt">
+                    <i class="fas fa-microscope upload-icon"></i>
+                    <h4>Ready for Intake</h4>
+                    <p style="color:var(--ai-text-dim);">Drag image or click to initialize sensor</p>
+                </div>
+                <img id="imagePreview" src="" alt="Preview">
+                <div class="scan-overlay" id="scanOverlay"></div>
+            </div>
+            <input type="file" id="fileInput" style="display:none" accept="image/*"
+                onchange="handleFile(this.files[0])">
+        </div>
+
+        <!-- Right Side: Intelligence & Processing -->
+        <div class="results-panel">
+            <div class="intelligence-card">
+                <h5>Sensor Status</h5>
+                <p id="sensorStatus">Awaiting specimen...</p>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" id="scanProgress"></div>
+                </div>
+            </div>
+
+            <div class="diagnostic-result" id="resultCard">
+                <div class="intelligence-card" style="border-left: 4px solid var(--ai-primary);">
+                    <h5>Pathology Identified</h5>
+                    <h3 id="diseaseName" style="font-family:'Space Grotesk'; font-weight:700; color:white;">System
+                        Normal</h3>
+                    <p id="diseaseDetails" style="color:var(--ai-text-dim);">AI diagnostic shows high probability of
+                        healthy foliage. Monitor for deviations.</p>
+                </div>
+
+                <div class="intelligence-card" style="background: rgba(16, 185, 129, 0.05); margin-top:12px;">
+                    <h5>Neural Advisory</h5>
+                    <p id="advisoryText">No emergency remediation required. Continue normal cultivation cycle.</p>
+                </div>
+            </div>
+
+            <button id="analyzeBtn" class="btn-ai-action" disabled onclick="simulateScan()">
+                <i class="fas fa-bolt"></i>
+                <span>Initialize Analysis</span>
+            </button>
+        </div>
+    </div>
+
+    <div style="text-align: left;">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Return to Command Center
+        </a>
+    </div>
+</div>
+
+<script>
+    const uploadZone = document.getElementById('uploadZone');
+    const imagePreview = document.getElementById('imagePreview');
+    const dropPrompt = document.getElementById('dropPrompt');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const scanOverlay = document.getElementById('scanOverlay');
+    const scanProgress = document.getElementById('scanProgress');
+    const sensorStatus = document.getElementById('sensorStatus');
+    const resultCard = document.getElementById('resultCard');
+
+    // Drag and Drop Logic
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, e => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+    });
+
+    uploadZone.addEventListener('dragover', () => uploadZone.classList.add('dragover'));
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => {
+        uploadZone.classList.remove('dragover');
+        handleFile(e.dataTransfer.files[0]);
+    });
+
+    function handleFile(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            dropPrompt.style.display = 'none';
+            analyzeBtn.disabled = false;
+            sensorStatus.textContent = "Specimen intake complete.";
+            resultCard.style.display = 'none';
+            scanProgress.style.width = '0%';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function simulateScan() {
+        analyzeBtn.disabled = true;
+        scanOverlay.style.display = 'block';
+        sensorStatus.textContent = "Processing neural mapping...";
+        scanProgress.style.width = '100%';
+
+        setTimeout(() => {
+            scanOverlay.style.display = 'none';
+            sensorStatus.textContent = "Diagnostic computation complete.";
+            resultCard.style.display = 'block';
+            analyzeBtn.disabled = false;
+
+            // Randomize result for demo
+            const results = [
+                { name: "Potato Early Blight", details: "Fungal infection detected in early stages. Alternaria solani spread intensity is moderate.", advisory: "Apply copper-based fungicides urgently. Isolate affected zone to prevent spore migration." },
+                { name: "Tomato Leaf Mold", details: "Passalora fulva detected. High humidity detected in cultivation environment.", advisory: "Improve air circulation. Reduce humidity below 70%. Remove lower leaves for better light penetration." },
+                { name: "System Normal (Healthy)", details: "Neural network detects no pathogenic markers. Foliage shows high chlorophyll efficiency.", advisory: "Continue standard nutrient program. Specimen is highly viable." }
+            ];
+
+            const picked = results[Math.floor(Math.random() * results.length)];
+            document.getElementById('diseaseName').textContent = picked.name;
+            document.getElementById('diseaseDetails').textContent = picked.details;
+            document.getElementById('advisoryText').textContent = picked.advisory;
+
+            document.getElementById('diseaseName').style.color = picked.name.includes("Healthy") ? "var(--ai-primary)" : "var(--ai-danger)";
+        }, 2000);
+    }
+</script>
+{% endblock %}
